@@ -80,7 +80,7 @@ public class HikeImportPutResource extends ContextResource
 				stats.store();
 			}
 
-			if (hillsValid)
+			if (hillsValid && !CollectionUtils.isEmpty(hi.getHills()))
 			{
 				for (Hills hill : hi.getHills())
 				{
@@ -136,8 +136,8 @@ public class HikeImportPutResource extends ContextResource
 
 	private boolean isHillsValid(Hills[] hills)
 	{
-		if (hills == null)
-			return false;
+		if (CollectionUtils.isEmpty(hills))
+			return true;
 
 		for (Hills hill : hills)
 		{

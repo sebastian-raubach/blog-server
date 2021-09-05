@@ -31,7 +31,7 @@ public class HikeYearsResource
 			DSLContext context = Database.getContext(conn);
 
 			Field<?> year = DSL.year(POSTS.CREATED_ON).as("year");
-			return context.select(year, DSL.count().as("count")).from(POSTS).where(POSTS.TYPE.eq(PostsType.hike)).groupBy(year).orderBy(year).fetchInto(HikeYearCount.class);
+			return context.select(year, DSL.count().as("count")).from(POSTS).where(POSTS.TYPE.eq(PostsType.hike)).groupBy(year).orderBy(year.desc()).fetchInto(HikeYearCount.class);
 		}
 	}
 }
