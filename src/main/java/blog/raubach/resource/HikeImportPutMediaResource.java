@@ -38,7 +38,11 @@ public class HikeImportPutMediaResource extends ContextResource
 		List<FormDataBodyPart> elevationProfile = form.getFields("elevation-profile");
 		List<FormDataBodyPart> timeDistanceProfile = form.getFields("time-distance-profile");
 
-		if (postId == null || CollectionUtils.isEmpty(images) || CollectionUtils.isEmpty(imageDescriptions) || CollectionUtils.isEmpty(imageIsPrimary) || images.size() != imageDescriptions.size() || images.size() != imageIsPrimary.size())
+		int imageCount = CollectionUtils.isEmpty(images) ? 0 : images.size();
+		int imageDescCount = CollectionUtils.isEmpty(imageDescriptions) ? 0 : imageDescriptions.size();
+		int imagePrimaryCount = CollectionUtils.isEmpty(imageIsPrimary) ? 0 : imageIsPrimary.size();
+
+		if (postId == null || imageCount != imageDescCount || imageCount != imagePrimaryCount)
 		{
 			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode());
 			return false;
@@ -54,31 +58,34 @@ public class HikeImportPutMediaResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			for (int i = 0; i < images.size(); i++)
+			if (!CollectionUtils.isEmpty(images))
 			{
-				BodyPart part = images.get(i);
-				String mt = part.getMediaType().toString();
-				String extension = ".jpg";
+				for (int i = 0; i < images.size(); i++)
+				{
+					BodyPart part = images.get(i);
+					String mt = part.getMediaType().toString();
+					String extension = ".jpg";
 
-				if (Objects.equals(mt, "image/png"))
-					extension = ".png";
+					if (Objects.equals(mt, "image/png"))
+						extension = ".png";
 
-				String name = "image-" + i + extension;
-				InputStream is = part.getEntityAs(InputStream.class);
-				File target = new File(targetFolder, name);
-				FileUtils.copyInputStreamToFile(is, target);
+					String name = "image-" + i + extension;
+					InputStream is = part.getEntityAs(InputStream.class);
+					File target = new File(targetFolder, name);
+					FileUtils.copyInputStreamToFile(is, target);
 
-				ImagesRecord im = context.newRecord(IMAGES);
-				im.setPath(mediaFolder.toPath().relativize(target.toPath()).toString());
-				im.setCreatedOn(new Timestamp(System.currentTimeMillis())); // We're setting this to now, but it'll be read from EXIF later
-				im.store();
+					ImagesRecord im = context.newRecord(IMAGES);
+					im.setPath(mediaFolder.toPath().relativize(target.toPath()).toString());
+					im.setCreatedOn(new Timestamp(System.currentTimeMillis())); // We're setting this to now, but it'll be read from EXIF later
+					im.store();
 
-				PostimagesRecord pim = context.newRecord(POSTIMAGES);
-				pim.setImageId(im.getId());
-				pim.setPostId(postId);
-				pim.setDescription(imageDescriptions.get(i).getValueAs(String.class));
-				pim.setIsPrimary(imageIsPrimary.get(i).getValueAs(Boolean.class));
-				pim.store();
+					PostimagesRecord pim = context.newRecord(POSTIMAGES);
+					pim.setImageId(im.getId());
+					pim.setPostId(postId);
+					pim.setDescription(imageDescriptions.get(i).getValueAs(String.class));
+					pim.setIsPrimary(imageIsPrimary.get(i).getValueAs(Boolean.class));
+					pim.store();
+				}
 			}
 
 			HikestatsRecord hs = context.selectFrom(HIKESTATS)

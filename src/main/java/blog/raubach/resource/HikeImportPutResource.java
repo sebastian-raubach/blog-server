@@ -51,17 +51,33 @@ public class HikeImportPutResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			PostsRecord post = context.newRecord(POSTS);
-			post.setTitle(hi.getTitle());
-			post.setContent(hi.getContent());
-			post.setCreatedOn(hi.getCreatedOn());
-			post.setType(hi.getType());
-			post.store();
+			PostsRecord post = context.selectFrom(POSTS)
+									  .where(POSTS.TITLE.eq(hi.getTitle()))
+									  .and(POSTS.CONTENT.eq(hi.getContent()))
+									  .and(POSTS.CREATED_ON.eq(hi.getCreatedOn()))
+									  .and(POSTS.TYPE.eq(hi.getType()))
+									  .fetchAny();
+
+			if (post == null)
+			{
+				post = context.newRecord(POSTS);
+				post.setTitle(hi.getTitle());
+				post.setContent(hi.getContent());
+				post.setCreatedOn(hi.getCreatedOn());
+				post.setType(hi.getType());
+				post.store();
+			}
 
 			if (ratingValid)
 			{
-				HikeratingsRecord rating = context.newRecord(HIKERATINGS);
-				rating.setPostId(post.getId());
+				HikeratingsRecord rating = context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAny();
+
+				if (rating == null)
+				{
+					rating = context.newRecord(HIKERATINGS);
+					rating.setPostId(post.getId());
+				}
+
 				rating.setPath(hi.getRating().getPath());
 				rating.setView(hi.getRating().getView());
 				rating.setWeather(hi.getRating().getWeather());
@@ -70,13 +86,19 @@ public class HikeImportPutResource extends ContextResource
 
 			if (statsValid)
 			{
-				HikestatsRecord stats = context.newRecord(HIKESTATS);
-				stats.setPostId(post.getId());
+				HikestatsRecord stats = context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(post.getId())).fetchAny();
+
+				if (stats == null)
+				{
+					stats = context.newRecord(HIKESTATS);
+					stats.setPostId(post.getId());
+					stats.setElevationProfilePath(null);
+					stats.setGpxPath(null);
+				}
+
 				stats.setAscent(hi.getStats().getAscent());
 				stats.setDuration(hi.getStats().getDuration());
 				stats.setDistance(hi.getStats().getDistance());
-				stats.setElevationProfilePath(null); // TODO
-				stats.setGpxPath(null); // TODO
 				stats.store();
 			}
 
@@ -84,15 +106,24 @@ public class HikeImportPutResource extends ContextResource
 			{
 				for (Hills hill : hi.getHills())
 				{
-					// Check if it exists
-					HillsRecord h = context.selectFrom(HILLS)
-										   .where(HILLS.NAME.eq(hill.getName()))
-										   .and(HILLS.LATITUDE.isNotDistinctFrom(hill.getLatitude()))
-										   .and(HILLS.LONGITUDE.isNotDistinctFrom(hill.getLongitude()))
-										   .and(HILLS.ELEVATION.isNotDistinctFrom(hill.getElevation()))
-										   .and(HILLS.REGION.isNotDistinctFrom(hill.getRegion()))
-										   .and(HILLS.URL.isNotDistinctFrom(hill.getUrl()))
-										   .fetchAny();
+					HillsRecord h;
+
+					if (hill.getId() != null)
+					{
+						h = context.selectFrom(HILLS).where(HILLS.ID.eq(hill.getId())).fetchAny();
+					}
+					else
+					{
+						// Check if it exists
+						h = context.selectFrom(HILLS)
+								   .where(HILLS.NAME.eq(hill.getName()))
+								   .and(HILLS.LATITUDE.isNotDistinctFrom(hill.getLatitude()))
+								   .and(HILLS.LONGITUDE.isNotDistinctFrom(hill.getLongitude()))
+								   .and(HILLS.ELEVATION.isNotDistinctFrom(hill.getElevation()))
+								   .and(HILLS.REGION.isNotDistinctFrom(hill.getRegion()))
+								   .and(HILLS.URL.isNotDistinctFrom(hill.getUrl()))
+								   .fetchAny();
+					}
 
 					if (h == null)
 					{
@@ -102,10 +133,15 @@ public class HikeImportPutResource extends ContextResource
 					}
 
 					// Link to post/hike
-					PosthillsRecord ph = context.newRecord(POSTHILLS);
-					ph.setPostId(post.getId());
-					ph.setHillId(h.getId());
-					ph.store();
+					PosthillsRecord ph = context.selectFrom(POSTHILLS).where(POSTHILLS.HILL_ID.eq(h.getId())).and(POSTHILLS.POST_ID.eq(post.getId())).fetchAny();
+
+					if (ph == null)
+					{
+						ph = context.newRecord(POSTHILLS);
+						ph.setPostId(post.getId());
+						ph.setHillId(h.getId());
+						ph.store();
+					}
 				}
 			}
 
@@ -131,7 +167,7 @@ public class HikeImportPutResource extends ContextResource
 
 	private boolean isStatsValid(Hikestats stats)
 	{
-		return stats != null && stats.getPostId() == null && stats.getAscent() != null && stats.getDistance() != null && stats.getDuration() != null;
+		return stats != null && stats.getPostId() == null && stats.getAscent() != null && stats.getDistance() != null;
 	}
 
 	private boolean isHillsValid(Hills[] hills)
