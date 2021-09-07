@@ -40,8 +40,9 @@ public class ApplicationListener implements ServletContextListener
 		}
 
 		backgroundScheduler = Executors.newSingleThreadScheduledExecutor();
-		backgroundScheduler.scheduleAtFixedRate(new ExifScannerTask(), 0, 1, TimeUnit.HOURS);
-		backgroundScheduler.scheduleAtFixedRate(new ImageScalerTask(), 0, 1, TimeUnit.HOURS);
+		backgroundScheduler.scheduleAtFixedRate(new ExifScannerTask(), 0, 12, TimeUnit.HOURS);
+		backgroundScheduler.scheduleAtFixedRate(new ImageScalerTask(), 0, 12, TimeUnit.HOURS);
+		backgroundScheduler.scheduleAtFixedRate(new GoogleElevationTask(), 0, 12, TimeUnit.HOURS);
 	}
 
 	@Override

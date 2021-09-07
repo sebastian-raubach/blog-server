@@ -4,6 +4,7 @@ import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.utils.*;
+import blog.raubach.utils.task.GoogleElevationTask;
 import org.apache.commons.io.FileUtils;
 import org.glassfish.jersey.media.multipart.*;
 import org.jooq.DSLContext;
@@ -119,6 +120,10 @@ public class HikeImportPutMediaResource extends ContextResource
 				}
 
 				hs.store();
+
+				// If no profiles have been provided, fire off the Google Elevation API correction task to generate the profiles.
+				if (StringUtils.isEmpty(hs.getElevationProfilePath()) || StringUtils.isEmpty(hs.getTimeDistanceProfilePath()))
+					new Thread(new GoogleElevationTask(hs.getPostId())).start();
 			}
 		}
 
