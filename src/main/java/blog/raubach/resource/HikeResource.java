@@ -5,7 +5,7 @@ import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.pojo.Hike;
-import blog.raubach.utils.PropertyWatcher;
+import blog.raubach.utils.*;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -139,7 +139,12 @@ public class HikeResource extends ContextResource
 			}
 
 			File mediaFolder = new File(PropertyWatcher.get("media.directory.external"));
-			File elevation = new File(mediaFolder, stats.getElevationProfilePath());
+			String ep = stats.getElevationProfilePath();
+			if (StringUtils.isEmpty(ep)) {
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return null;
+			}
+			File elevation = new File(mediaFolder, ep);
 
 			if (!elevation.exists() || !elevation.isFile())
 			{
@@ -182,7 +187,14 @@ public class HikeResource extends ContextResource
 			}
 
 			File mediaFolder = new File(PropertyWatcher.get("media.directory.external"));
-			File elevation = new File(mediaFolder, stats.getTimeDistanceProfilePath());
+			String tdp = stats.getTimeDistanceProfilePath();
+			if (StringUtils.isEmpty(tdp))
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return null;
+			}
+
+			File elevation = new File(mediaFolder, tdp);
 
 			if (!elevation.exists() || !elevation.isFile())
 			{

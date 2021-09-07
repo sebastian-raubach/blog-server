@@ -94,14 +94,15 @@ public class GoogleElevationTask implements Runnable
 							try (BufferedWriter ew = new BufferedWriter(new FileWriter(elevation, StandardCharsets.UTF_8));
 								 BufferedWriter tdw = new BufferedWriter(new FileWriter(timeDistance, StandardCharsets.UTF_8)))
 							{
-								ew.write("distance\\televation");
+								ew.write("distance\televation");
 								ew.newLine();
-								tdw.write("time\\tdistance");
+								tdw.write("time\tdistance");
 								tdw.newLine();
 
-								int accu = 0;
-								int tdAccu = 0;
+								double accu = 0;
+								double tdAccu = 0;
 								int lastTime = -1;
+								long startTime = getTime(points.get(0));
 								for (int i = 1; i < points.size(); i++)
 								{
 									Point prev = points.get(i - 1);
@@ -113,12 +114,13 @@ public class GoogleElevationTask implements Runnable
 									ew.write(accu + "\t" + result[i].elevation);
 									ew.newLine();
 
-									int time = getTimeDistance(prev, curr);
+									long time = getTime(curr);
+									int tdSeconds = getTimeDistance(time, startTime);
 
-									if (time > lastTime)
+									if (tdSeconds > lastTime)
 									{
-										lastTime = time;
-										tdw.write(time + "\t" + tdAccu);
+										lastTime = tdSeconds;
+										tdw.write(tdSeconds + "\t" + tdAccu);
 										tdw.newLine();
 									}
 								}
@@ -146,15 +148,19 @@ public class GoogleElevationTask implements Runnable
 
 	}
 
-	private int getTimeDistance(Point one, Point two)
+	private long getTime(Point point)
 	{
-		ZonedDateTime a = one.getTime().orElse(null);
-		ZonedDateTime b = two.getTime().orElse(null);
+		ZonedDateTime d = point.getTime().orElse(null);
 
-		if (a != null && b != null)
-			return (int) Math.floor((Math.abs(b.toEpochSecond() - a.toEpochSecond())) / 60.0);
+		if (d != null)
+			return d.toEpochSecond();
 		else
 			return 0;
+	}
+
+	private int getTimeDistance(long one, long two)
+	{
+		return (int) Math.floor(Math.abs(two - one) / 60.0);
 	}
 
 	private double getHaversine(Point one, Point two)
@@ -164,7 +170,7 @@ public class GoogleElevationTask implements Runnable
 		double dLat = toRadians(two.getLatitude().doubleValue() - one.getLatitude().doubleValue());
 		double dLng = toRadians(two.getLongitude().doubleValue() - one.getLongitude().doubleValue());
 
-		double a = Math.sin(dLat / 2.0) * Math.sin(dLat / 2.0) + Math.cos(one.getLatitude().toRadians()) * Math.cos(two.getLatitude().toRadians()) * Math.sin(dLng / 2.0) * Math.sin(dLng / 2.0);
+		double a = Math.sin(dLat / 2.0) * Math.sin(dLat / 2.0) + Math.cos(toRadians(one.getLatitude().doubleValue())) * Math.cos(toRadians(two.getLatitude().doubleValue())) * Math.sin(dLng / 2.0) * Math.sin(dLng / 2.0);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
 		return r * c;
