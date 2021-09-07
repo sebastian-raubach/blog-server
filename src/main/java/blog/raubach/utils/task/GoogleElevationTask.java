@@ -88,6 +88,7 @@ public class GoogleElevationTask implements Runnable
 
 							String uuid = gpx.getParentFile().getName();
 
+							double totalAscent = 0;
 							// Write the outputs
 							File elevation = new File(gpx.getParentFile(), uuid + "-elevation.tsv");
 							File timeDistance = new File(gpx.getParentFile(), uuid + "-time-distance.tsv");
@@ -102,6 +103,7 @@ public class GoogleElevationTask implements Runnable
 								double accu = 0;
 								double tdAccu = 0;
 								int lastTime = -1;
+
 								long startTime = getTime(points.get(0));
 								for (int i = 1; i < points.size(); i++)
 								{
@@ -110,6 +112,8 @@ public class GoogleElevationTask implements Runnable
 									double haversine = getHaversine(prev, curr);
 									accu += haversine;
 									tdAccu += haversine;
+
+									totalAscent += Math.max(0, result[i].elevation - result[i - 1].elevation);
 
 									ew.write(accu + "\t" + result[i].elevation);
 									ew.newLine();
@@ -126,6 +130,7 @@ public class GoogleElevationTask implements Runnable
 								}
 							}
 
+							hs.setAscent(totalAscent);
 							hs.setElevationProfilePath(mediaFolder.toPath().relativize(elevation.toPath()).toString());
 							hs.setTimeDistanceProfilePath(mediaFolder.toPath().relativize(timeDistance.toPath()).toString());
 							hs.store();
