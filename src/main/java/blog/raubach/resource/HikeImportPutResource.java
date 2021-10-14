@@ -21,7 +21,7 @@ import static blog.raubach.database.codegen.tables.Posthills.*;
 import static blog.raubach.database.codegen.tables.Posts.*;
 import static blog.raubach.database.codegen.tables.Postvideos.*;
 
-@Path("post/import")
+@Path("import/post")
 @Secured
 public class HikeImportPutResource extends ContextResource
 {

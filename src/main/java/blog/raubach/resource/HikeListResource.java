@@ -6,6 +6,7 @@ import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.PostsRecord;
 import blog.raubach.pojo.*;
+import blog.raubach.utils.StringUtils;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -70,8 +71,13 @@ public class HikeListResource extends BaseResource
 		{
 			DSLContext context = Database.getContext(conn);
 
+			SelectConditionStep<PostsRecord> step = context.selectFrom(POSTS).where(POSTS.TYPE.eq(PostsType.hike));
+
+			if (!StringUtils.isEmpty(searchTerm))
+				step.and(POSTS.TITLE.contains(searchTerm));
+
 			// Get the posts
-			List<Hike> hikes = setPaginationAndOrderBy(context.selectFrom(POSTS).where(POSTS.TYPE.eq(PostsType.hike)))
+			List<Hike> hikes = setPaginationAndOrderBy(step)
 				.fetchInto(Hike.class);
 
 			// Get the images and videos

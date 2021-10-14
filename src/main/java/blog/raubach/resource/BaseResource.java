@@ -9,6 +9,9 @@ import javax.ws.rs.*;
 
 public abstract class BaseResource extends ContextResource
 {
+	@QueryParam("searchTerm")
+	protected String searchTerm;
+
 	@DefaultValue("-1")
 	@QueryParam("prevCount")
 	protected long previousCount;
@@ -46,6 +49,14 @@ public abstract class BaseResource extends ContextResource
 		catch (NullPointerException | NumberFormatException e)
 		{
 			this.pageSize = Integer.MAX_VALUE;
+		}
+		try
+		{
+			this.searchTerm = request == null ? this.searchTerm : request.getSearchTerm();
+		}
+		catch (NullPointerException e)
+		{
+			this.searchTerm = null;
 		}
 		try
 		{

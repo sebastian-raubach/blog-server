@@ -1,6 +1,6 @@
 package blog.raubach.pojo;
 
-public class HikeYearCount
+public class YearCount
 {
 	private int year;
 	private int count;
@@ -10,7 +10,7 @@ public class HikeYearCount
 		return year;
 	}
 
-	public HikeYearCount setYear(int year)
+	public YearCount setYear(int year)
 	{
 		this.year = year;
 		return this;
@@ -21,7 +21,7 @@ public class HikeYearCount
 		return count;
 	}
 
-	public HikeYearCount setCount(int count)
+	public YearCount setCount(int count)
 	{
 		this.count = count;
 		return this;

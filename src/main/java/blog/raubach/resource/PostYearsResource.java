@@ -15,15 +15,15 @@ import java.util.List;
 
 import static blog.raubach.database.codegen.tables.Posts.*;
 
-@Path("hike/years")
+@Path("post/years")
 @Secured
 @PermitAll
-public class HikeYearsResource
+public class PostYearsResource
 {
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<YearCount> getHikeYears()
+	public List<YearCount> getPostYears()
 		throws SQLException
 	{
 		try (Connection conn = Database.getConnection())
@@ -31,7 +31,7 @@ public class HikeYearsResource
 			DSLContext context = Database.getContext(conn);
 
 			Field<?> year = DSL.year(POSTS.CREATED_ON).as("year");
-			return context.select(year, DSL.count().as("count")).from(POSTS).where(POSTS.TYPE.eq(PostsType.hike)).groupBy(year).orderBy(year.desc()).fetchInto(YearCount.class);
+			return context.select(year, DSL.count().as("count")).from(POSTS).where(POSTS.TYPE.eq(PostsType.news)).groupBy(year).orderBy(year.desc()).fetchInto(YearCount.class);
 		}
 	}
 }

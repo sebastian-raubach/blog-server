@@ -37,6 +37,8 @@ public class GoogleElevationTask implements Runnable
 	{
 		File mediaFolder = new File(PropertyWatcher.get("media.directory.external"));
 
+		Logger.getLogger("").info("RUNNING GOOGLE ELEVATION TASK");
+
 		GeoApiContext gContext = new GeoApiContext.Builder()
 			.apiKey(PropertyWatcher.get("google.elevation.api.key"))
 			.build();
@@ -53,6 +55,7 @@ public class GoogleElevationTask implements Runnable
 				step = step.and(HIKESTATS.POST_ID.eq(postId));
 
 			step.forEach(hs -> {
+				Logger.getLogger("").info("RUNNING GOOGLE ELEVATION TASK FOR POST: " + hs.getPostId());
 				File gpx = new File(mediaFolder, hs.getGpxPath());
 
 				if (gpx.exists() && gpx.isFile())
@@ -139,13 +142,12 @@ public class GoogleElevationTask implements Runnable
 					catch (IOException | InterruptedException | ApiException e)
 					{
 						e.printStackTrace();
+						Logger.getLogger("").severe(e.getMessage());
 					}
 				}
 			});
 		}
-		catch (
-			SQLException e)
-
+		catch (SQLException e)
 		{
 			e.printStackTrace();
 			Logger.getLogger("").severe(e.getMessage());

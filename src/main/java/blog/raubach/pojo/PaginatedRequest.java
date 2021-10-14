@@ -5,6 +5,7 @@ package blog.raubach.pojo;
  */
 public class PaginatedRequest
 {
+	private String  searchTerm;
 	private String  orderBy;
 	private Integer ascending;
 	private int     limit     = Integer.MAX_VALUE;
@@ -13,6 +14,17 @@ public class PaginatedRequest
 
 	public PaginatedRequest()
 	{
+	}
+
+	public String getSearchTerm()
+	{
+		return searchTerm;
+	}
+
+	public PaginatedRequest setSearchTerm(String searchTerm)
+	{
+		this.searchTerm = searchTerm;
+		return this;
 	}
 
 	public String getOrderBy()
