@@ -23,7 +23,7 @@ public class PostYearsResource
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<YearCount> getPostYears()
+	public List<YearCount> getPostYears(@QueryParam("postType") PostsType postType)
 		throws SQLException
 	{
 		try (Connection conn = Database.getConnection())
@@ -31,7 +31,12 @@ public class PostYearsResource
 			DSLContext context = Database.getContext(conn);
 
 			Field<?> year = DSL.year(POSTS.CREATED_ON).as("year");
-			return context.select(year, DSL.count().as("count")).from(POSTS).where(POSTS.TYPE.eq(PostsType.news)).groupBy(year).orderBy(year.desc()).fetchInto(YearCount.class);
+			return context.select(year, DSL.count().as("count"))
+						  .from(POSTS)
+						  .where(POSTS.TYPE.eq(postType))
+						  .groupBy(year)
+						  .orderBy(year.desc())
+						  .fetchInto(YearCount.class);
 		}
 	}
 }

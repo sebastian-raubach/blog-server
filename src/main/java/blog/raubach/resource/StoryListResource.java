@@ -3,8 +3,10 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.Postimages;
+import blog.raubach.database.codegen.tables.records.StoriesRecord;
 import blog.raubach.pojo.*;
-import org.jooq.DSLContext;
+import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
@@ -22,6 +24,9 @@ import static blog.raubach.database.codegen.tables.Storyposts.*;
 @PermitAll
 public class StoryListResource extends BaseResource
 {
+	@QueryParam("postId")
+	Integer postId;
+
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
@@ -33,7 +38,12 @@ public class StoryListResource extends BaseResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			List<Story> stories = setPaginationAndOrderBy(context.selectFrom(STORIES))
+			SelectWhereStep<StoriesRecord> select = context.selectFrom(STORIES);
+
+			if (postId != null)
+				select.whereExists(DSL.selectOne().from(STORYPOSTS).where(STORYPOSTS.POST_ID.eq(postId)));
+
+			List<Story> stories = setPaginationAndOrderBy(select)
 				.fetchInto(Story.class);
 
 			stories.forEach(s -> {

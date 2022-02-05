@@ -21,7 +21,7 @@ import static blog.raubach.database.codegen.tables.Postimages.*;
 
 @Path("post/media/{postId}")
 @Secured
-public class HikeImportPutMediaResource extends ContextResource
+public class PostImportPutMediaResource extends ContextResource
 {
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)

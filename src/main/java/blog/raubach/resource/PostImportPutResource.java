@@ -23,7 +23,7 @@ import static blog.raubach.database.codegen.tables.Postvideos.*;
 
 @Path("import/post")
 @Secured
-public class HikeImportPutResource extends ContextResource
+public class PostImportPutResource extends ContextResource
 {
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
