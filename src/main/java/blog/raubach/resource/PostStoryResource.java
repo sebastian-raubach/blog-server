@@ -19,7 +19,7 @@ import static blog.raubach.database.codegen.tables.Posts.*;
 import static blog.raubach.database.codegen.tables.Stories.*;
 import static blog.raubach.database.codegen.tables.Storyposts.*;
 
-@Path("post/{postId/story")
+@Path("post/{postId}/story")
 @Secured
 @PermitAll
 public class PostStoryResource extends BaseResource
