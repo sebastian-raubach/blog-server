@@ -47,7 +47,11 @@ public class StoryListResource extends BaseResource
 				.fetchInto(Story.class);
 
 			stories.forEach(s -> {
-				List<Hike> posts = context.select().from(POSTS).leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID)).where(STORYPOSTS.STORY_ID.eq(s.getId())).fetchInto(Hike.class);
+				List<Hike> posts = context.select().from(POSTS)
+										  .leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
+										  .where(STORYPOSTS.STORY_ID.eq(s.getId()))
+										  .orderBy(POSTS.CREATED_ON.asc())
+										  .fetchInto(Hike.class);
 				posts.forEach(p -> p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class)));
 				s.setPosts(posts);
 			});
