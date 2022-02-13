@@ -54,6 +54,7 @@ public class PostImportPutResource extends ContextResource
 			PostsRecord post = context.selectFrom(POSTS)
 									  .where(POSTS.TITLE.eq(hi.getTitle()))
 									  .and(POSTS.CONTENT.eq(hi.getContent()))
+									  .and(POSTS.END_DATE.isNotDistinctFrom(hi.getEndDate()))
 									  .and(POSTS.CREATED_ON.eq(hi.getCreatedOn()))
 									  .and(POSTS.TYPE.eq(hi.getType()))
 									  .fetchAny();
@@ -63,6 +64,7 @@ public class PostImportPutResource extends ContextResource
 				post = context.newRecord(POSTS);
 				post.setTitle(hi.getTitle());
 				post.setContent(hi.getContent());
+				post.setEndDate(hi.getEndDate());
 				post.setCreatedOn(hi.getCreatedOn());
 				post.setType(hi.getType());
 				post.store();

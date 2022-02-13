@@ -35,6 +35,8 @@ dependencies {
 
     implementation 'commons-io:commons-io:2.6'
 
+    implementation 'org.flywaydb:flyway-core:6.3.3'
+
     implementation 'mysql:mysql-connector-java:8.0.25'
     implementation 'org.jooq:jooq:3.11.10'
     implementation 'org.jooq:jooq-codegen:3.11.10'

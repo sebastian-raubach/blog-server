@@ -1,0 +1,1 @@
+ALTER TABLE `posts` ADD COLUMN `end_date` datetime NULL AFTER `content`;

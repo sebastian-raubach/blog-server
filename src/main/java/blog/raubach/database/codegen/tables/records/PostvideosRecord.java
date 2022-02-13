@@ -11,10 +11,9 @@ import java.sql.Timestamp;
 import javax.annotation.Generated;
 
 import org.jooq.Field;
-import org.jooq.Record1;
 import org.jooq.Record4;
 import org.jooq.Row4;
-import org.jooq.impl.UpdatableRecordImpl;
+import org.jooq.impl.*;
 
 
 // @formatter:off
@@ -31,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class PostvideosRecord extends UpdatableRecordImpl<PostvideosRecord> implements Record4<Integer, String, Timestamp, Timestamp> {
 
-    private static final long serialVersionUID = 2031582507;
+    private static final long serialVersionUID = 1584348314;
 
     /**
      * Setter for <code>blog_db.postvideos.post_id</code>.
@@ -87,18 +86,6 @@ public class PostvideosRecord extends UpdatableRecordImpl<PostvideosRecord> impl
      */
     public Timestamp getUpdatedOn() {
         return (Timestamp) get(3);
-    }
-
-    // -------------------------------------------------------------------------
-    // Primary key information
-    // -------------------------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Record1<Integer> key() {
-        return (Record1) super.key();
     }
 
     // -------------------------------------------------------------------------

@@ -26,12 +26,13 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posts implements Serializable {
 
-    private static final long serialVersionUID = 2103934121;
+    private static final long serialVersionUID = 120962168;
 
     private Integer   id;
     private PostsType type;
     private String    title;
     private String    content;
+    private Timestamp endDate;
     private Timestamp createdOn;
     private Timestamp updatedOn;
 
@@ -42,6 +43,7 @@ public class Posts implements Serializable {
         this.type = value.type;
         this.title = value.title;
         this.content = value.content;
+        this.endDate = value.endDate;
         this.createdOn = value.createdOn;
         this.updatedOn = value.updatedOn;
     }
@@ -51,6 +53,7 @@ public class Posts implements Serializable {
         PostsType type,
         String    title,
         String    content,
+        Timestamp endDate,
         Timestamp createdOn,
         Timestamp updatedOn
     ) {
@@ -58,6 +61,7 @@ public class Posts implements Serializable {
         this.type = type;
         this.title = title;
         this.content = content;
+        this.endDate = endDate;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
     }
@@ -94,6 +98,14 @@ public class Posts implements Serializable {
         this.content = content;
     }
 
+    public Timestamp getEndDate() {
+        return this.endDate;
+    }
+
+    public void setEndDate(Timestamp endDate) {
+        this.endDate = endDate;
+    }
+
     public Timestamp getCreatedOn() {
         return this.createdOn;
     }
@@ -118,6 +130,7 @@ public class Posts implements Serializable {
         sb.append(", ").append(type);
         sb.append(", ").append(title);
         sb.append(", ").append(content);
+        sb.append(", ").append(endDate);
         sb.append(", ").append(createdOn);
         sb.append(", ").append(updatedOn);
 

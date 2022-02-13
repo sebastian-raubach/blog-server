@@ -40,7 +40,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posts extends TableImpl<PostsRecord> {
 
-    private static final long serialVersionUID = 2140289144;
+    private static final long serialVersionUID = 512609849;
 
     /**
      * The reference instance of <code>blog_db.posts</code>
@@ -74,6 +74,11 @@ public class Posts extends TableImpl<PostsRecord> {
      * The column <code>blog_db.posts.content</code>.
      */
     public final TableField<PostsRecord, String> CONTENT = createField("content", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
+
+    /**
+     * The column <code>blog_db.posts.end_date</code>.
+     */
+    public final TableField<PostsRecord, Timestamp> END_DATE = createField("end_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * The column <code>blog_db.posts.created_on</code>.

@@ -10,6 +10,7 @@ public class PostImport
 	private PostsType type;
 	private String    title;
 	private String    content;
+	private Timestamp endDate;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
@@ -48,6 +49,17 @@ public class PostImport
 	public PostImport setContent(String content)
 	{
 		this.content = content;
+		return this;
+	}
+
+	public Timestamp getEndDate()
+	{
+		return endDate;
+	}
+
+	public PostImport setEndDate(Timestamp endDate)
+	{
+		this.endDate = endDate;
 		return this;
 	}
 

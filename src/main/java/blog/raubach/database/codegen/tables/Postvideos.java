@@ -8,8 +8,6 @@ import blog.raubach.database.codegen.BlogDb;
 import blog.raubach.database.codegen.tables.records.PostvideosRecord;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.annotation.Generated;
 
@@ -18,9 +16,7 @@ import org.jooq.Name;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
-import org.jooq.UniqueKey;
 import org.jooq.impl.DSL;
-import org.jooq.impl.Internal;
 import org.jooq.impl.TableImpl;
 
 
@@ -38,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Postvideos extends TableImpl<PostvideosRecord> {
 
-    private static final long serialVersionUID = -267408503;
+    private static final long serialVersionUID = 397111347;
 
     /**
      * The reference instance of <code>blog_db.postvideos</code>
@@ -108,24 +104,6 @@ public class Postvideos extends TableImpl<PostvideosRecord> {
     @Override
     public Schema getSchema() {
         return BlogDb.BLOG_DB;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public UniqueKey<PostvideosRecord> getPrimaryKey() {
-        return Internal.createUniqueKey(blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS, "KEY_postvideos_PRIMARY", blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS.POST_ID);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<UniqueKey<PostvideosRecord>> getKeys() {
-        return Arrays.<UniqueKey<PostvideosRecord>>asList(
-              Internal.createUniqueKey(blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS, "KEY_postvideos_PRIMARY", blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS.POST_ID)
-        );
     }
 
     /**

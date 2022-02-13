@@ -2,13 +2,15 @@ package blog.raubach.database;
 
 import blog.raubach.database.codegen.BlogDb;
 import blog.raubach.utils.StringUtils;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.FlywayException;
 import org.jooq.*;
 import org.jooq.conf.*;
 import org.jooq.impl.DSL;
 
 import java.sql.*;
 import java.util.TimeZone;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /**
  * @author Sebastian Raubach
@@ -71,6 +73,25 @@ public class Database
 
 		if (!connectionSuccessful)
 			throw new RuntimeException("Unable to connect to database after 10 attempts. Exiting.");
+
+		// Run database updates
+		try
+		{
+			Logger.getLogger("").log(Level.INFO, "RUNNING FLYWAY on: " + databaseName);
+			Flyway flyway = Flyway.configure()
+								  .table("schema_version")
+								  .validateOnMigrate(false)
+								  .dataSource(getDatabaseUrl(false), username, password)
+								  .locations("classpath:blog/raubach/utils/database/migration")
+								  .baselineOnMigrate(true)
+								  .load();
+			flyway.migrate();
+			flyway.repair();
+		}
+		catch (FlywayException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
