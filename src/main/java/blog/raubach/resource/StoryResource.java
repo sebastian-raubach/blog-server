@@ -3,8 +3,9 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.database.codegen.tables.records.StoriesRecord;
 import blog.raubach.pojo.*;
-import org.jooq.DSLContext;
+import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import javax.annotation.security.PermitAll;
@@ -48,9 +49,15 @@ public class StoryResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			Story story = context.selectFrom(STORIES).fetchAnyInto(Story.class);
+			SelectWhereStep<StoriesRecord> step = context.selectFrom(STORIES);
 
-			if (story != null) {
+			if (storyId != null)
+				step.where(STORIES.ID.eq(storyId));
+
+			Story story = step.fetchAnyInto(Story.class);
+
+			if (story != null)
+			{
 				List<Hike> posts = context.select().from(POSTS).leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID)).where(STORYPOSTS.STORY_ID.eq(story.getId())).fetchInto(Hike.class);
 				posts.forEach(p -> {
 					p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class));
