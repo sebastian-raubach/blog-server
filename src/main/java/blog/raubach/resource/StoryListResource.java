@@ -41,7 +41,7 @@ public class StoryListResource extends BaseResource
 			SelectWhereStep<StoriesRecord> select = context.selectFrom(STORIES);
 
 			if (postId != null)
-				select.whereExists(DSL.selectOne().from(STORYPOSTS).where(STORYPOSTS.POST_ID.eq(postId)));
+				select.whereExists(DSL.selectOne().from(STORYPOSTS).where(STORYPOSTS.POST_ID.eq(postId)).and(STORYPOSTS.STORY_ID.eq(STORIES.ID)));
 
 			List<Story> stories = setPaginationAndOrderBy(select)
 				.fetchInto(Story.class);

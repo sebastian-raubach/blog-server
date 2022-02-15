@@ -2,7 +2,7 @@ package blog.raubach.resource;
 
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
-import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.database.codegen.tables.pojos.Postimages;
 import blog.raubach.pojo.*;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -44,7 +44,10 @@ public class PostStoryResource extends BaseResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			List<Story> stories = setPaginationAndOrderBy(context.selectFrom(STORIES).whereExists(DSL.selectFrom(STORYPOSTS).where(STORYPOSTS.POST_ID.eq(postId).and(STORYPOSTS.STORY_ID.eq(STORIES.ID)))))
+			List<Story> stories = setPaginationAndOrderBy(context.selectFrom(STORIES)
+																 .whereExists(DSL.selectFrom(STORYPOSTS)
+																				 .where(STORYPOSTS.POST_ID.eq(postId)
+																										  .and(STORYPOSTS.STORY_ID.eq(STORIES.ID)))))
 				.fetchInto(Story.class);
 
 			stories.forEach(s -> {
