@@ -32,7 +32,7 @@ public class PostListResource extends BaseResource
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Hike> getHikes(@QueryParam("year") Integer year, @QueryParam("postType") PostsType postType)
+	public List<Hike> getPosts(@QueryParam("year") Integer year, @QueryParam("postType") PostsType postType)
 		throws SQLException
 	{
 		try (Connection conn = Database.getConnection())

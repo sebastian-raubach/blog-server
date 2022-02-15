@@ -151,10 +151,10 @@ public class PostImportPutResource extends ContextResource
 			{
 				for (String video : hi.getVideos())
 				{
-					PostvideosRecord v = context.newRecord(POSTVIDEOS);
-					v.setPostId(post.getId());
-					v.setVideoPath(video);
-					v.store();
+					context.insertInto(POSTVIDEOS)
+						.set(POSTVIDEOS.POST_ID, post.getId())
+						.set(POSTVIDEOS.VIDEO_PATH, video)
+						.execute();
 				}
 			}
 

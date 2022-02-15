@@ -2,9 +2,8 @@ package blog.raubach.resource;
 
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
-import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
-import blog.raubach.pojo.*;
+import blog.raubach.pojo.Hike;
 import blog.raubach.utils.*;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
@@ -34,7 +33,7 @@ public class PostResource extends ContextResource
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Post getPost()
+	public Hike getPost()
 		throws SQLException, IOException
 	{
 		if (postId == null)
@@ -139,7 +138,8 @@ public class PostResource extends ContextResource
 
 			File mediaFolder = new File(PropertyWatcher.get("media.directory.external"));
 			String ep = stats.getElevationProfilePath();
-			if (StringUtils.isEmpty(ep)) {
+			if (StringUtils.isEmpty(ep))
+			{
 				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
 				return null;
 			}

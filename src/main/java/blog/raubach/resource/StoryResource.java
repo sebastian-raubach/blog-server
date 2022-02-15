@@ -58,7 +58,12 @@ public class StoryResource extends ContextResource
 
 			if (story != null)
 			{
-				List<Hike> posts = context.select().from(POSTS).leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID)).where(STORYPOSTS.STORY_ID.eq(story.getId())).fetchInto(Hike.class);
+				List<Hike> posts = context.select()
+										  .from(POSTS)
+										  .leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
+										  .where(STORYPOSTS.STORY_ID.eq(story.getId()))
+										  .orderBy(POSTS.CREATED_ON.asc())
+										  .fetchInto(Hike.class);
 				posts.forEach(p -> {
 					p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class));
 					p.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(p.getId())).fetchInto(Postvideos.class));
