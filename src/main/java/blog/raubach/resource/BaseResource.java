@@ -3,9 +3,11 @@ package blog.raubach.resource;
 import blog.raubach.pojo.PaginatedRequest;
 import blog.raubach.utils.StringUtils;
 import org.jooq.*;
+import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
 import javax.ws.rs.*;
+import java.util.logging.Logger;
 
 public abstract class BaseResource extends ContextResource
 {
@@ -25,9 +27,7 @@ public abstract class BaseResource extends ContextResource
 	protected int pageSize;
 
 	@QueryParam("ascending")
-	private int isAscending;
-
-	protected Boolean ascending = null;
+	private Integer isAscending;
 
 	@QueryParam("orderBy")
 	protected String orderBy;
@@ -71,12 +71,11 @@ public abstract class BaseResource extends ContextResource
 		}
 		try
 		{
-			Integer value = request == null ? this.isAscending : request.getAscending();
-			this.ascending = value == 1;
+			this.isAscending = request == null ? this.isAscending : request.getAscending();
 		}
 		catch (NullPointerException | NumberFormatException e)
 		{
-			this.ascending = null;
+			this.isAscending = 0;
 		}
 		try
 		{
@@ -90,9 +89,9 @@ public abstract class BaseResource extends ContextResource
 
 	protected <T extends Record> SelectForUpdateStep<T> setPaginationAndOrderBy(SelectOrderByStep<T> step)
 	{
-		if (ascending != null && orderBy != null)
+		if (isAscending != null && orderBy != null)
 		{
-			if (ascending)
+			if (isAscending == 1)
 				step.orderBy(DSL.field(getSafeColumn(orderBy)).asc());
 			else
 				step.orderBy(DSL.field(getSafeColumn(orderBy)).desc());
