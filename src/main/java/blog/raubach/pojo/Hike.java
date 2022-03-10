@@ -6,16 +6,16 @@ import java.util.List;
 
 public class Hike extends Post
 {
-	private List<Hills> hills;
+	private List<PostHill> hills;
 	private Hikestats stats;
 	private Hikeratings ratings;
 
-	public List<Hills> getHills()
+	public List<PostHill> getHills()
 	{
 		return hills;
 	}
 
-	public Hike setHills(List<Hills> hills)
+	public Hike setHills(List<PostHill> hills)
 	{
 		this.hills = hills;
 		return this;

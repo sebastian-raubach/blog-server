@@ -13,6 +13,7 @@ import java.sql.*;
 import java.util.List;
 
 import static blog.raubach.database.codegen.tables.Hills.*;
+import static blog.raubach.database.codegen.tables.Posthills.*;
 
 @Path("hill/types")
 @Secured
@@ -29,7 +30,12 @@ public class HillTypeCountResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			return context.select(HILLS.TYPE, DSL.count().as("count")).from(HILLS).groupBy(HILLS.TYPE).fetchInto(HillTypeCount.class);
+			return context.select(HILLS.TYPE, DSL.count().as("count"))
+						  .from(HILLS)
+						  .leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID))
+						  .where(POSTHILLS.SUCCESSFUL.eq(true))
+						  .groupBy(HILLS.TYPE)
+						  .fetchInto(HillTypeCount.class);
 		}
 	}
 }

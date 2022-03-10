@@ -6,14 +6,13 @@ import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.StoriesRecord;
 import blog.raubach.pojo.*;
 import org.jooq.*;
-import org.jooq.impl.DSL;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.sql.*;
-import java.util.List;
+import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.*;
 import static blog.raubach.database.codegen.tables.Hikestats.*;
@@ -67,7 +66,10 @@ public class StoryResource extends ContextResource
 				posts.forEach(p -> {
 					p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class));
 					p.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(p.getId())).fetchInto(Postvideos.class));
-					p.setHills(context.selectFrom(HILLS).where(DSL.exists(DSL.selectFrom(POSTHILLS).where(POSTHILLS.HILL_ID.eq(HILLS.ID)).and(POSTHILLS.POST_ID.eq(p.getId())))).fetchInto(Hills.class));
+					List<Field<?>> fields = new ArrayList<>();
+					fields.addAll(Arrays.asList(HILLS.fields()));
+					fields.add(POSTHILLS.SUCCESSFUL);
+					p.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(p.getId())).fetchInto(PostHill.class));
 					p.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(p.getId())).fetchAnyInto(Hikestats.class));
 					p.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(p.getId())).fetchAnyInto(Hikeratings.class));
 				});

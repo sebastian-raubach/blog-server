@@ -14,7 +14,7 @@ import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.sql.*;
-import java.util.List;
+import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.*;
 import static blog.raubach.database.codegen.tables.Hikestats.*;
@@ -53,7 +53,10 @@ public class PostListResource extends BaseResource
 			posts.forEach(h -> {
 				h.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(h.getId())).fetchInto(Postimages.class));
 				h.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(h.getId())).fetchInto(Postvideos.class));
-				h.setHills(context.selectFrom(HILLS).where(DSL.exists(DSL.selectFrom(POSTHILLS).where(POSTHILLS.HILL_ID.eq(HILLS.ID)).and(POSTHILLS.POST_ID.eq(h.getId())))).fetchInto(Hills.class));
+				List<Field<?>> fields = new ArrayList<>();
+				fields.addAll(Arrays.asList(HILLS.fields()));
+				fields.add(POSTHILLS.SUCCESSFUL);
+				h.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(h.getId())).fetchInto(PostHill.class));
 				h.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(h.getId())).fetchAnyInto(Hikestats.class));
 				h.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(h.getId())).fetchAnyInto(Hikeratings.class));
 			});
@@ -87,7 +90,10 @@ public class PostListResource extends BaseResource
 			posts.forEach(h -> {
 				h.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(h.getId())).fetchInto(Postimages.class));
 				h.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(h.getId())).fetchInto(Postvideos.class));
-				h.setHills(context.selectFrom(HILLS).where(DSL.exists(DSL.selectFrom(POSTHILLS).where(POSTHILLS.HILL_ID.eq(HILLS.ID)).and(POSTHILLS.POST_ID.eq(h.getId())))).fetchInto(Hills.class));
+				List<Field<?>> fields = new ArrayList<>();
+				fields.addAll(Arrays.asList(HILLS.fields()));
+				fields.add(POSTHILLS.SUCCESSFUL);
+				h.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(h.getId())).fetchInto(PostHill.class));
 				h.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(h.getId())).fetchAnyInto(Hikestats.class));
 				h.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(h.getId())).fetchAnyInto(Hikeratings.class));
 			});

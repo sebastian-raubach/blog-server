@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posthills extends TableImpl<PosthillsRecord> {
 
-    private static final long serialVersionUID = -664203411;
+    private static final long serialVersionUID = -1006781586;
 
     /**
      * The reference instance of <code>blog_db.posthills</code>
@@ -61,6 +61,11 @@ public class Posthills extends TableImpl<PosthillsRecord> {
      * The column <code>blog_db.posthills.hill_id</code>.
      */
     public final TableField<PosthillsRecord, Integer> HILL_ID = createField("hill_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>blog_db.posthills.successful</code>.
+     */
+    public final TableField<PosthillsRecord, Boolean> SUCCESSFUL = createField("successful", org.jooq.impl.SQLDataType.BOOLEAN.nullable(false).defaultValue(org.jooq.impl.DSL.inline("1", org.jooq.impl.SQLDataType.BOOLEAN)), this, "");
 
     /**
      * Create a <code>blog_db.posthills</code> table reference

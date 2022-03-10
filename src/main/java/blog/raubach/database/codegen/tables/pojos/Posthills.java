@@ -23,24 +23,28 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posthills implements Serializable {
 
-    private static final long serialVersionUID = -2108328388;
+    private static final long serialVersionUID = -430169294;
 
     private Integer postId;
     private Integer hillId;
+    private Boolean successful;
 
     public Posthills() {}
 
     public Posthills(Posthills value) {
         this.postId = value.postId;
         this.hillId = value.hillId;
+        this.successful = value.successful;
     }
 
     public Posthills(
         Integer postId,
-        Integer hillId
+        Integer hillId,
+        Boolean successful
     ) {
         this.postId = postId;
         this.hillId = hillId;
+        this.successful = successful;
     }
 
     public Integer getPostId() {
@@ -59,12 +63,21 @@ public class Posthills implements Serializable {
         this.hillId = hillId;
     }
 
+    public Boolean getSuccessful() {
+        return this.successful;
+    }
+
+    public void setSuccessful(Boolean successful) {
+        this.successful = successful;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Posthills (");
 
         sb.append(postId);
         sb.append(", ").append(hillId);
+        sb.append(", ").append(successful);
 
         sb.append(")");
         return sb.toString();

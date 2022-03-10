@@ -5,7 +5,7 @@ import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
-import blog.raubach.pojo.PostImport;
+import blog.raubach.pojo.*;
 import blog.raubach.utils.*;
 import org.jooq.DSLContext;
 
@@ -106,7 +106,7 @@ public class PostImportPutResource extends ContextResource
 
 			if (hillsValid && !CollectionUtils.isEmpty(hi.getHills()))
 			{
-				for (Hills hill : hi.getHills())
+				for (PostHill hill : hi.getHills())
 				{
 					HillsRecord h;
 
@@ -142,6 +142,7 @@ public class PostImportPutResource extends ContextResource
 						ph = context.newRecord(POSTHILLS);
 						ph.setPostId(post.getId());
 						ph.setHillId(h.getId());
+						ph.setSuccessful(hill.isSuccessful());
 						ph.store();
 					}
 				}
@@ -172,12 +173,12 @@ public class PostImportPutResource extends ContextResource
 		return stats != null && stats.getPostId() == null && stats.getAscent() != null && stats.getDistance() != null;
 	}
 
-	private boolean isHillsValid(Hills[] hills)
+	private boolean isHillsValid(PostHill[] hills)
 	{
 		if (CollectionUtils.isEmpty(hills))
 			return true;
 
-		for (Hills hill : hills)
+		for (PostHill hill : hills)
 		{
 			if (hill == null || StringUtils.isEmpty(hill.getName()) || hill.getType() == null)
 				return false;

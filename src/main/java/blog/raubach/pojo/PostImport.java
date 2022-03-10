@@ -14,7 +14,7 @@ public class PostImport
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
-	private Hills hills[];
+	private PostHill hills[];
 	private String videos[];
 	private Hikestats stats;
 	private Hikeratings rating;
@@ -85,12 +85,12 @@ public class PostImport
 		return this;
 	}
 
-	public Hills[] getHills()
+	public PostHill[] getHills()
 	{
 		return hills;
 	}
 
-	public PostImport setHills(Hills[] hills)
+	public PostImport setHills(PostHill[] hills)
 	{
 		this.hills = hills;
 		return this;
