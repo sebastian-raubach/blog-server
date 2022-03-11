@@ -32,18 +32,35 @@ public class PostListResource extends BaseResource
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Hike> getPosts(@QueryParam("year") Integer year, @QueryParam("postType") PostsType postType)
+	public List<Hike> getPosts(@QueryParam("year") Integer year, @QueryParam("postType") PostsType postType, @QueryParam("searchQuery") String searchQuery)
 		throws SQLException
 	{
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
 
-			SelectConditionStep<PostsRecord> step = context.selectFrom(POSTS)
-														   .where(POSTS.TYPE.eq(postType));
+			SelectWhereStep<PostsRecord> step = context.selectFrom(POSTS);
+
+			if (postType != null)
+				step.where(POSTS.TYPE.eq(postType));
 
 			if (year != null)
-				step.and(DSL.year(POSTS.CREATED_ON).eq(year));
+				step.where(DSL.year(POSTS.CREATED_ON).eq(year));
+
+			if (!StringUtils.isEmpty(searchQuery))
+			{
+				step.where(POSTS.TITLE.contains(searchQuery))
+					.or(POSTS.CONTENT.contains(searchQuery))
+					.orExists(DSL.selectOne().from(POSTHILLS)
+								 .leftJoin(HILLS).on(HILLS.ID.eq(POSTHILLS.HILL_ID))
+								 .where(POSTHILLS.POST_ID.eq(POSTS.ID))
+								 .and(HILLS.NAME.contains(searchQuery)
+												.or(HILLS.REGION.contains(searchQuery))
+												.or(HILLS.TYPE.cast(String.class).contains(searchQuery))))
+					.orExists(DSL.selectOne().from(POSTIMAGES)
+								 .where(POSTIMAGES.POST_ID.eq(POSTS.ID))
+								 .and(POSTIMAGES.DESCRIPTION.contains(searchQuery)));
+			}
 
 			// Get the posts
 			List<Hike> posts = setPaginationAndOrderBy(step)
