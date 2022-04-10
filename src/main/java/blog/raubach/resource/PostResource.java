@@ -3,9 +3,11 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.database.codegen.tables.records.RelationshipsRecord;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.*;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
@@ -21,6 +23,7 @@ import static blog.raubach.database.codegen.tables.Posthills.*;
 import static blog.raubach.database.codegen.tables.Postimages.*;
 import static blog.raubach.database.codegen.tables.Posts.*;
 import static blog.raubach.database.codegen.tables.Postvideos.*;
+import static blog.raubach.database.codegen.tables.Relationships.*;
 
 @Path("post/{postId}")
 @Secured
@@ -67,6 +70,101 @@ public class PostResource extends ContextResource
 			post.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAnyInto(Hikeratings.class));
 
 			return post;
+		}
+	}
+
+	@GET
+	@Path("/related")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Hike> getRelatedPosts()
+		throws IOException, SQLException
+	{
+		if (postId == null)
+		{
+			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode());
+			return null;
+		}
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			// Get the posts
+			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+							   .fetchAnyInto(Hike.class);
+
+			if (post == null)
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return null;
+			}
+
+			List<Hike> posts = context.selectFrom(POSTS)
+									  .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
+									  .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
+									  .fetchInto(Hike.class);
+			posts.forEach(p -> {
+				p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class));
+				p.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(p.getId())).fetchInto(Postvideos.class));
+				List<Field<?>> fields = new ArrayList<>();
+				fields.addAll(Arrays.asList(HILLS.fields()));
+				fields.add(POSTHILLS.SUCCESSFUL);
+				p.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(p.getId())).fetchInto(PostHill.class));
+				p.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(p.getId())).fetchAnyInto(Hikestats.class));
+				p.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(p.getId())).fetchAnyInto(Hikeratings.class));
+			});
+
+			return posts;
+		}
+	}
+
+	@POST
+	@Path("/related")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean PostRelatedPosts(List<Integer> postIds)
+		throws IOException, SQLException
+	{
+		if (postId == null || CollectionUtils.isEmpty(postIds))
+		{
+			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode());
+			return false;
+		}
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			// Get the posts
+			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+							   .fetchAnyInto(Hike.class);
+
+			if (post == null)
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return false;
+			}
+
+			List<Integer> existingRelatedPostIds = context.select(POSTS.ID).from(POSTS)
+														  .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
+														  .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
+														  .fetchInto(Integer.class);
+
+			// Remove all existing
+			postIds.removeAll(existingRelatedPostIds);
+
+			postIds.forEach(p -> {
+				Integer min = Math.min(p, postId);
+				Integer max = Math.max(p, postId);
+
+				RelationshipsRecord rec = context.newRecord(RELATIONSHIPS);
+				rec.setPostAId(min);
+				rec.setPostBId(max);
+				rec.store();
+			});
+
+			return true;
 		}
 	}
 
