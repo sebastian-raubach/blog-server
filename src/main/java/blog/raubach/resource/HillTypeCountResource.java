@@ -30,10 +30,11 @@ public class HillTypeCountResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			return context.select(HILLS.TYPE, DSL.count().as("count"))
+			return context.selectDistinct(HILLS.TYPE, DSL.count().as("count"))
 						  .from(HILLS)
-						  .leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID))
-						  .where(POSTHILLS.SUCCESSFUL.eq(true))
+						  .whereExists(DSL.selectOne().from(POSTHILLS)
+										  .where(POSTHILLS.HILL_ID.eq(HILLS.ID))
+										  .and(POSTHILLS.SUCCESSFUL.eq(true)))
 						  .groupBy(HILLS.TYPE)
 						  .fetchInto(HillTypeCount.class);
 		}
