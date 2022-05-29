@@ -26,12 +26,13 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posts implements Serializable {
 
-    private static final long serialVersionUID = 120962168;
+    private static final long serialVersionUID = -117571622;
 
     private Integer   id;
     private PostsType type;
     private String    title;
     private String    content;
+    private Integer   viewCount;
     private Timestamp endDate;
     private Timestamp createdOn;
     private Timestamp updatedOn;
@@ -43,6 +44,7 @@ public class Posts implements Serializable {
         this.type = value.type;
         this.title = value.title;
         this.content = value.content;
+        this.viewCount = value.viewCount;
         this.endDate = value.endDate;
         this.createdOn = value.createdOn;
         this.updatedOn = value.updatedOn;
@@ -53,6 +55,7 @@ public class Posts implements Serializable {
         PostsType type,
         String    title,
         String    content,
+        Integer   viewCount,
         Timestamp endDate,
         Timestamp createdOn,
         Timestamp updatedOn
@@ -61,6 +64,7 @@ public class Posts implements Serializable {
         this.type = type;
         this.title = title;
         this.content = content;
+        this.viewCount = viewCount;
         this.endDate = endDate;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
@@ -98,6 +102,14 @@ public class Posts implements Serializable {
         this.content = content;
     }
 
+    public Integer getViewCount() {
+        return this.viewCount;
+    }
+
+    public void setViewCount(Integer viewCount) {
+        this.viewCount = viewCount;
+    }
+
     public Timestamp getEndDate() {
         return this.endDate;
     }
@@ -130,6 +142,7 @@ public class Posts implements Serializable {
         sb.append(", ").append(type);
         sb.append(", ").append(title);
         sb.append(", ").append(content);
+        sb.append(", ").append(viewCount);
         sb.append(", ").append(endDate);
         sb.append(", ").append(createdOn);
         sb.append(", ").append(updatedOn);

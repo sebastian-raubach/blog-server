@@ -6,7 +6,7 @@ import org.jooq.*;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
-import javax.ws.rs.*;
+import jakarta.ws.rs.*;
 import java.util.logging.Logger;
 
 public abstract class BaseResource extends ContextResource

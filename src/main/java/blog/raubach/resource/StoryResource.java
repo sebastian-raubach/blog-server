@@ -7,9 +7,9 @@ import blog.raubach.database.codegen.tables.records.StoriesRecord;
 import blog.raubach.pojo.*;
 import org.jooq.*;
 
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.io.IOException;
 import java.sql.*;
 import java.util.*;

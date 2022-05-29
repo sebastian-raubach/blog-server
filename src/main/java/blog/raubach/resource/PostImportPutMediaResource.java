@@ -9,8 +9,8 @@ import org.apache.commons.io.FileUtils;
 import org.glassfish.jersey.media.multipart.*;
 import org.jooq.DSLContext;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.io.*;
 import java.sql.*;
 import java.util.*;

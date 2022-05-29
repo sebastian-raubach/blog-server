@@ -3,15 +3,15 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
-import blog.raubach.database.codegen.tables.records.RelationshipsRecord;
+import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.*;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.*;
 import java.io.*;
 import java.sql.*;
 import java.util.*;
@@ -58,6 +58,11 @@ public class PostResource extends ContextResource
 				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
 				return null;
 			}
+
+			// Increment view count
+			PostsRecord rec = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAny();
+			rec.setViewCount(rec.getViewCount() + 1);
+			rec.store(POSTS.VIEW_COUNT);
 
 			// Get the images and videos
 			post.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(post.getId())).fetchInto(Postimages.class));

@@ -4,9 +4,9 @@ import blog.raubach.Secured;
 import blog.raubach.pojo.Settings;
 import blog.raubach.utils.PropertyWatcher;
 
-import javax.annotation.security.PermitAll;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.MediaType;
 
 @Path("settings")
 @Secured
