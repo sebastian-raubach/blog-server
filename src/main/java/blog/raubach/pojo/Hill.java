@@ -1,21 +1,21 @@
 package blog.raubach.pojo;
 
-import blog.raubach.database.codegen.tables.pojos.Hills;
+import blog.raubach.database.codegen.tables.pojos.*;
 
 import java.util.List;
 
 public class Hill extends Hills
 {
-	private List<Integer> hikeIds;
+	private List<Posts> posts;
 
-	public List<Integer> getHikeIds()
+	public List<Posts> getPosts()
 	{
-		return hikeIds;
+		return posts;
 	}
 
-	public Hill setHikeIds(List<Integer> hikeIds)
+	public Hill setPosts(List<Posts> posts)
 	{
-		this.hikeIds = hikeIds;
+		this.posts = posts;
 		return this;
 	}
 }
