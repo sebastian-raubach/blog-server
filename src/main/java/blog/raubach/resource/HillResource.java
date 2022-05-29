@@ -3,14 +3,15 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
+import blog.raubach.database.codegen.tables.pojos.Posts;
 import blog.raubach.database.codegen.tables.records.HillsRecord;
 import blog.raubach.pojo.Hill;
 import blog.raubach.utils.StringUtils;
-import org.jooq.*;
-
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.jooq.*;
+
 import java.sql.*;
 import java.util.List;
 
@@ -40,7 +41,7 @@ public class HillResource
 
 			List<Hill> hills = step.fetchInto(Hill.class);
 
-			hills.forEach(h -> h.setHikeIds(context.select(POSTS.ID).from(POSTS).leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID)).where(POSTS.TYPE.eq(PostsType.hike)).and(POSTHILLS.HILL_ID.eq(h.getId())).fetch(POSTS.ID)));
+			hills.forEach(h -> h.setPosts(context.select().from(POSTS).leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID)).where(POSTS.TYPE.eq(PostsType.hike)).and(POSTHILLS.HILL_ID.eq(h.getId())).fetchInto(Posts.class)));
 
 			return hills;
 		}
