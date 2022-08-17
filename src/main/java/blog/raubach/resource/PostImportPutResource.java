@@ -7,10 +7,10 @@ import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.*;
-import org.jooq.DSLContext;
-
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.jooq.DSLContext;
+
 import java.io.IOException;
 import java.sql.*;
 
@@ -31,7 +31,7 @@ public class PostImportPutResource extends ContextResource
 	public Integer putPostImport(PostImport hi)
 		throws IOException, SQLException
 	{
-		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || StringUtils.isEmpty(hi.getContent()))
+		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
 		{
 			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set");
 			return null;
@@ -53,7 +53,8 @@ public class PostImportPutResource extends ContextResource
 
 			PostsRecord post = context.selectFrom(POSTS)
 									  .where(POSTS.TITLE.eq(hi.getTitle()))
-									  .and(POSTS.CONTENT.eq(hi.getContent()))
+									  .and(POSTS.CONTENT.isNotDistinctFrom(hi.getContent()))
+									  .and(POSTS.CONTENT_MARKDOWN.isNotDistinctFrom(hi.getContentMarkdown()))
 									  .and(POSTS.END_DATE.isNotDistinctFrom(hi.getEndDate()))
 									  .and(POSTS.CREATED_ON.eq(hi.getCreatedOn()))
 									  .and(POSTS.TYPE.eq(hi.getType()))
@@ -64,6 +65,7 @@ public class PostImportPutResource extends ContextResource
 				post = context.newRecord(POSTS);
 				post.setTitle(hi.getTitle());
 				post.setContent(hi.getContent());
+				post.setContentMarkdown(hi.getContentMarkdown());
 				post.setEndDate(hi.getEndDate());
 				post.setCreatedOn(hi.getCreatedOn());
 				post.setType(hi.getType());
@@ -153,9 +155,9 @@ public class PostImportPutResource extends ContextResource
 				for (String video : hi.getVideos())
 				{
 					context.insertInto(POSTVIDEOS)
-						.set(POSTVIDEOS.POST_ID, post.getId())
-						.set(POSTVIDEOS.VIDEO_PATH, video)
-						.execute();
+						   .set(POSTVIDEOS.POST_ID, post.getId())
+						   .set(POSTVIDEOS.VIDEO_PATH, video)
+						   .execute();
 				}
 			}
 

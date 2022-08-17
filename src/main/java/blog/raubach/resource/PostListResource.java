@@ -51,6 +51,7 @@ public class PostListResource extends BaseResource
 			{
 				step.where(POSTS.TITLE.contains(searchQuery))
 					.or(POSTS.CONTENT.contains(searchQuery))
+					.or(POSTS.CONTENT_MARKDOWN.contains(searchQuery))
 					.orExists(DSL.selectOne().from(POSTHILLS)
 								 .leftJoin(HILLS).on(HILLS.ID.eq(POSTHILLS.HILL_ID))
 								 .where(POSTHILLS.POST_ID.eq(POSTS.ID))

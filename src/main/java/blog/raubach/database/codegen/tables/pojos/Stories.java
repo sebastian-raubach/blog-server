@@ -24,11 +24,12 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Stories implements Serializable {
 
-    private static final long serialVersionUID = 790052996;
+    private static final long serialVersionUID = 1332513394;
 
     private Integer   id;
     private String    title;
     private String    content;
+    private String    contentMarkdown;
     private Timestamp createdOn;
     private Timestamp updatedOn;
 
@@ -38,6 +39,7 @@ public class Stories implements Serializable {
         this.id = value.id;
         this.title = value.title;
         this.content = value.content;
+        this.contentMarkdown = value.contentMarkdown;
         this.createdOn = value.createdOn;
         this.updatedOn = value.updatedOn;
     }
@@ -46,12 +48,14 @@ public class Stories implements Serializable {
         Integer   id,
         String    title,
         String    content,
+        String    contentMarkdown,
         Timestamp createdOn,
         Timestamp updatedOn
     ) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.contentMarkdown = contentMarkdown;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
     }
@@ -80,6 +84,14 @@ public class Stories implements Serializable {
         this.content = content;
     }
 
+    public String getContentMarkdown() {
+        return this.contentMarkdown;
+    }
+
+    public void setContentMarkdown(String contentMarkdown) {
+        this.contentMarkdown = contentMarkdown;
+    }
+
     public Timestamp getCreatedOn() {
         return this.createdOn;
     }
@@ -103,6 +115,7 @@ public class Stories implements Serializable {
         sb.append(id);
         sb.append(", ").append(title);
         sb.append(", ").append(content);
+        sb.append(", ").append(contentMarkdown);
         sb.append(", ").append(createdOn);
         sb.append(", ").append(updatedOn);
 

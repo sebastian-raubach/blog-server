@@ -26,12 +26,13 @@ import javax.annotation.Generated;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Posts implements Serializable {
 
-    private static final long serialVersionUID = -117571622;
+    private static final long serialVersionUID = 481107764;
 
     private Integer   id;
     private PostsType type;
     private String    title;
     private String    content;
+    private String    contentMarkdown;
     private Integer   viewCount;
     private Timestamp endDate;
     private Timestamp createdOn;
@@ -44,6 +45,7 @@ public class Posts implements Serializable {
         this.type = value.type;
         this.title = value.title;
         this.content = value.content;
+        this.contentMarkdown = value.contentMarkdown;
         this.viewCount = value.viewCount;
         this.endDate = value.endDate;
         this.createdOn = value.createdOn;
@@ -55,6 +57,7 @@ public class Posts implements Serializable {
         PostsType type,
         String    title,
         String    content,
+        String    contentMarkdown,
         Integer   viewCount,
         Timestamp endDate,
         Timestamp createdOn,
@@ -64,6 +67,7 @@ public class Posts implements Serializable {
         this.type = type;
         this.title = title;
         this.content = content;
+        this.contentMarkdown = contentMarkdown;
         this.viewCount = viewCount;
         this.endDate = endDate;
         this.createdOn = createdOn;
@@ -100,6 +104,14 @@ public class Posts implements Serializable {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public String getContentMarkdown() {
+        return this.contentMarkdown;
+    }
+
+    public void setContentMarkdown(String contentMarkdown) {
+        this.contentMarkdown = contentMarkdown;
     }
 
     public Integer getViewCount() {
@@ -142,6 +154,7 @@ public class Posts implements Serializable {
         sb.append(", ").append(type);
         sb.append(", ").append(title);
         sb.append(", ").append(content);
+        sb.append(", ").append(contentMarkdown);
         sb.append(", ").append(viewCount);
         sb.append(", ").append(endDate);
         sb.append(", ").append(createdOn);

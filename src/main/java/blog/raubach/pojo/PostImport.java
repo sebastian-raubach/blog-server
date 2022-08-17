@@ -10,13 +10,14 @@ public class PostImport
 	private PostsType type;
 	private String    title;
 	private String    content;
+	private String    contentMarkdown;
 	private Timestamp endDate;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
-	private PostHill hills[];
-	private String videos[];
-	private Hikestats stats;
+	private PostHill    hills[];
+	private String      videos[];
+	private Hikestats   stats;
 	private Hikeratings rating;
 
 	public PostsType getType()
@@ -49,6 +50,17 @@ public class PostImport
 	public PostImport setContent(String content)
 	{
 		this.content = content;
+		return this;
+	}
+
+	public String getContentMarkdown()
+	{
+		return contentMarkdown;
+	}
+
+	public PostImport setContentMarkdown(String contentMarkdown)
+	{
+		this.contentMarkdown = contentMarkdown;
 		return this;
 	}
 
