@@ -13,6 +13,7 @@
 			<globalSequenceReferences>false</globalSequenceReferences>
 			<globalTableReferences>false</globalTableReferences>
 			<globalUDTReferences>false</globalUDTReferences>
+			<javaTimeTypes>false</javaTimeTypes>
 		</generate>
 
 		<database>
