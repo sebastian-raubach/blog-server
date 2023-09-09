@@ -6,39 +6,67 @@ import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.*;
-import org.jooq.*;
-import org.jooq.impl.DSL;
-
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
-import java.io.*;
+import org.jooq.*;
+import org.jooq.impl.DSL;
+
 import java.io.File;
+import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-import static blog.raubach.database.codegen.tables.Hikeratings.*;
-import static blog.raubach.database.codegen.tables.Hikestats.*;
-import static blog.raubach.database.codegen.tables.Hills.*;
-import static blog.raubach.database.codegen.tables.Posthills.*;
-import static blog.raubach.database.codegen.tables.Postimages.*;
-import static blog.raubach.database.codegen.tables.Posts.*;
-import static blog.raubach.database.codegen.tables.Postvideos.*;
-import static blog.raubach.database.codegen.tables.Relationships.*;
+import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
+import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
+import static blog.raubach.database.codegen.tables.Hills.HILLS;
+import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
+import static blog.raubach.database.codegen.tables.Postimages.POSTIMAGES;
+import static blog.raubach.database.codegen.tables.Posts.POSTS;
+import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
+import static blog.raubach.database.codegen.tables.Relationships.RELATIONSHIPS;
 
 @Path("post/{postId}")
 @Secured
-@PermitAll
 public class PostResource extends ContextResource
 {
 	@PathParam("postId")
 	private Integer postId;
 
+	@PATCH
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response patchHike(Hike hike)
+			throws SQLException
+	{
+		if (postId == null || hike == null || hike.getId() == null || !Objects.equals(hike.getId(), postId) || StringUtils.isEmpty(hike.getTitle()) || StringUtils.isEmpty(hike.getContentMarkdown()) || hike.getCreatedOn() == null)
+			return Response.status(Response.Status.BAD_REQUEST).build();
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			// Get the posts
+			PostsRecord post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+									  .fetchAny();
+
+			if (post == null)
+				return Response.status(Response.Status.NOT_FOUND).build();
+
+			post.setTitle(hike.getTitle());
+			post.setContentMarkdown(hike.getContentMarkdown());
+			post.setCreatedOn(hike.getCreatedOn());
+			post.setEndDate(hike.getEndDate());
+			return Response.ok(post.store() > 0).build();
+		}
+	}
+
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public Hike getPost()
-		throws SQLException, IOException
+			throws SQLException, IOException
 	{
 		if (postId == null)
 		{
@@ -83,8 +111,9 @@ public class PostResource extends ContextResource
 	@Path("/related")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public List<Hike> getRelatedPosts()
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (postId == null)
 		{
@@ -129,8 +158,9 @@ public class PostResource extends ContextResource
 	@Path("/related")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
+	@PermitAll
 	public boolean PostRelatedPosts(List<Integer> postIds)
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (postId == null || CollectionUtils.isEmpty(postIds))
 		{
@@ -178,8 +208,9 @@ public class PostResource extends ContextResource
 	@Path("/gpx")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces("application/gpx+xml")
+	@PermitAll
 	public Response getHikeGpx()
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (postId == null)
 		{
@@ -221,8 +252,9 @@ public class PostResource extends ContextResource
 	@Path("/elevation")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces("text/tab-separated-values")
+	@PermitAll
 	public Response getElevationProfile()
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (postId == null)
 		{
@@ -270,8 +302,9 @@ public class PostResource extends ContextResource
 	@Path("/time-distance")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces("text/tab-separated-values")
+	@PermitAll
 	public Response getTimeDistanceProfile()
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (postId == null)
 		{
