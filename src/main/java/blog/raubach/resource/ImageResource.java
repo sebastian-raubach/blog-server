@@ -14,19 +14,27 @@ import java.util.logging.Logger;
 
 import static blog.raubach.database.codegen.tables.Images.*;
 
-@Path("image/{imageId}/{size}")
+@Path("image/{imageId}")
 public class ImageResource extends ContextResource
 {
 	@PathParam("imageId")
 	private Integer imageId;
 
-	@PathParam("size")
-	private String size;
-
 	@GET
+	@Path("/{size}/{filename}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces("image/*")
-	public Response getImage()
+	public Response getImageWithFilename(@PathParam("size") String size)
+			throws IOException, SQLException
+	{
+		return getImage(size);
+	}
+
+	@GET
+	@Path("/{size}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces("image/*")
+	public Response getImage(@PathParam("size") String size)
 		throws IOException, SQLException
 	{
 		if (imageId == null)

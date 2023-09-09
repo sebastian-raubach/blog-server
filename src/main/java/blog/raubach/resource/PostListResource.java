@@ -13,12 +13,15 @@ import org.jooq.impl.DSL;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+
+import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.*;
 import static blog.raubach.database.codegen.tables.Hikestats.*;
 import static blog.raubach.database.codegen.tables.Hills.*;
+import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Posthills.*;
 import static blog.raubach.database.codegen.tables.Postimages.*;
 import static blog.raubach.database.codegen.tables.Posts.*;
@@ -69,7 +72,12 @@ public class PostListResource extends BaseResource
 
 			// Get the images and videos
 			posts.forEach(h -> {
-				h.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(h.getId())).fetchInto(Postimages.class));
+				List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(h.getId())).fetchInto(ImageDetails.class);
+				images.forEach(i -> {
+					if (!StringUtils.isEmpty(i.getImagePath()))
+						i.setImagePath(i.getImagePath().substring(i.getImagePath().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1));
+				});
+				h.setImages(images);
 				h.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(h.getId())).fetchInto(Postvideos.class));
 				List<Field<?>> fields = new ArrayList<>();
 				fields.addAll(Arrays.asList(HILLS.fields()));
@@ -106,7 +114,12 @@ public class PostListResource extends BaseResource
 
 			// Get the images and videos
 			posts.forEach(h -> {
-				h.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(h.getId())).fetchInto(Postimages.class));
+				List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(h.getId())).fetchInto(ImageDetails.class);
+				images.forEach(i -> {
+					if (!StringUtils.isEmpty(i.getImagePath()))
+						i.setImagePath(i.getImagePath().substring(i.getImagePath().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1));
+				});
+				h.setImages(images);
 				h.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(h.getId())).fetchInto(Postvideos.class));
 				List<Field<?>> fields = new ArrayList<>();
 				fields.addAll(Arrays.asList(HILLS.fields()));

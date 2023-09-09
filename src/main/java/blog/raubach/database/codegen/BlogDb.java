@@ -7,6 +7,7 @@ package blog.raubach.database.codegen;
 import blog.raubach.database.codegen.tables.Hikeratings;
 import blog.raubach.database.codegen.tables.Hikestats;
 import blog.raubach.database.codegen.tables.Hills;
+import blog.raubach.database.codegen.tables.ImageDetails;
 import blog.raubach.database.codegen.tables.Images;
 import blog.raubach.database.codegen.tables.Posthills;
 import blog.raubach.database.codegen.tables.Postimages;
@@ -60,6 +61,7 @@ public class BlogDb extends SchemaImpl {
             Hikeratings.HIKERATINGS,
             Hikestats.HIKESTATS,
             Hills.HILLS,
+            ImageDetails.IMAGE_DETAILS,
             Images.IMAGES,
             Posthills.POSTHILLS,
             Postimages.POSTIMAGES,

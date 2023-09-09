@@ -6,15 +6,15 @@ import java.util.List;
 
 public class Post extends Posts
 {
-	private List<Postimages> images;
-	private List<Postvideos> videos;
+	private List<ImageDetails> images;
+	private List<Postvideos>   videos;
 
-	public List<Postimages> getImages()
+	public List<ImageDetails> getImages()
 	{
 		return images;
 	}
 
-	public Post setImages(List<Postimages> images)
+	public Post setImages(List<ImageDetails> images)
 	{
 		this.images = images;
 		return this;

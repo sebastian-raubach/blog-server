@@ -5,18 +5,21 @@ import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.StoriesRecord;
 import blog.raubach.pojo.*;
+import blog.raubach.utils.StringUtils;
 import org.jooq.*;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.*;
 import static blog.raubach.database.codegen.tables.Hikestats.*;
 import static blog.raubach.database.codegen.tables.Hills.*;
+import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Posthills.*;
 import static blog.raubach.database.codegen.tables.Postimages.*;
 import static blog.raubach.database.codegen.tables.Posts.*;
@@ -64,7 +67,12 @@ public class StoryResource extends ContextResource
 										  .orderBy(POSTS.CREATED_ON.asc())
 										  .fetchInto(Hike.class);
 				posts.forEach(p -> {
-					p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class));
+					List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(p.getId())).fetchInto(ImageDetails.class);
+					images.forEach(i -> {
+						if (!StringUtils.isEmpty(i.getImagePath()))
+							i.setImagePath(i.getImagePath().substring(i.getImagePath().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1));
+					});
+					p.setImages(images);
 					p.setVideos(context.selectFrom(POSTVIDEOS).where(POSTVIDEOS.POST_ID.eq(p.getId())).fetchInto(Postvideos.class));
 					List<Field<?>> fields = new ArrayList<>();
 					fields.addAll(Arrays.asList(HILLS.fields()));

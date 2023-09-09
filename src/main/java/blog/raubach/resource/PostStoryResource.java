@@ -2,8 +2,9 @@ package blog.raubach.resource;
 
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
-import blog.raubach.database.codegen.tables.pojos.Postimages;
+import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.pojo.*;
+import blog.raubach.utils.StringUtils;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
 
@@ -11,9 +12,11 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.List;
 
+import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Postimages.*;
 import static blog.raubach.database.codegen.tables.Posts.*;
 import static blog.raubach.database.codegen.tables.Stories.*;
@@ -52,7 +55,14 @@ public class PostStoryResource extends BaseResource
 
 			stories.forEach(s -> {
 				List<Hike> posts = context.select().from(POSTS).leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID)).where(STORYPOSTS.STORY_ID.eq(s.getId())).fetchInto(Hike.class);
-				posts.forEach(p -> p.setImages(context.selectFrom(POSTIMAGES).where(POSTIMAGES.POST_ID.eq(p.getId())).fetchInto(Postimages.class)));
+				posts.forEach(p -> {
+					List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(p.getId())).fetchInto(ImageDetails.class);
+					images.forEach(i -> {
+						if (!StringUtils.isEmpty(i.getImagePath()))
+							i.setImagePath(i.getImagePath().substring(i.getImagePath().lastIndexOf(FileSystems.getDefault().getSeparator()) + 1));
+					});
+					p.setImages(images);
+				});
 				s.setPosts(posts);
 			});
 

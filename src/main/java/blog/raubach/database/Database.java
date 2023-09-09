@@ -1,13 +1,17 @@
 package blog.raubach.database;
 
 import blog.raubach.database.codegen.BlogDb;
-import blog.raubach.utils.StringUtils;
+import blog.raubach.utils.*;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.FlywayException;
 import org.jooq.*;
 import org.jooq.conf.*;
 import org.jooq.impl.DSL;
 
+import java.io.*;
+import java.io.File;
+import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.TimeZone;
 import java.util.logging.*;
@@ -90,6 +94,42 @@ public class Database
 		}
 		catch (FlywayException e)
 		{
+			e.printStackTrace();
+		}
+
+		// Add/update all the views
+		try
+		{
+			URL url = Database.class.getClassLoader().getResource("blog/raubach/utils/database/init/views.sql");
+
+			if (url != null)
+			{
+				Logger.getLogger("").log(Level.INFO, "RUNNING VIEW CREATION SCRIPT!");
+				executeFile(new File(url.toURI()));
+			}
+			else
+			{
+				throw new IOException("View SQL file not found!");
+			}
+		}
+		catch (IOException | URISyntaxException e)
+		{
+			Logger.getLogger("").log(Level.SEVERE, e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	private static void executeFile(File sqlFile)
+	{
+		try (Connection conn = Database.getConnection();
+			 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(sqlFile), StandardCharsets.UTF_8)))
+		{
+			ScriptRunner runner = new ScriptRunner(conn, true, true);
+			runner.runScript(br);
+		}
+		catch (SQLException | IOException e)
+		{
+			Logger.getLogger("").log(Level.SEVERE, e.getMessage());
 			e.printStackTrace();
 		}
 	}
