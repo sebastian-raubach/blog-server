@@ -1,26 +1,26 @@
 package blog.raubach.resource;
 
-import blog.raubach.Secured;
+import blog.raubach.*;
 import blog.raubach.database.Database;
-import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.database.codegen.tables.pojos.ImageDetails;
+import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.StringUtils;
-import org.jooq.DSLContext;
-import org.jooq.impl.DSL;
-
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.jooq.*;
+import org.jooq.impl.DSL;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.List;
 
 import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
-import static blog.raubach.database.codegen.tables.Postimages.*;
-import static blog.raubach.database.codegen.tables.Posts.*;
-import static blog.raubach.database.codegen.tables.Stories.*;
-import static blog.raubach.database.codegen.tables.Storyposts.*;
+import static blog.raubach.database.codegen.tables.Posts.POSTS;
+import static blog.raubach.database.codegen.tables.Stories.STORIES;
+import static blog.raubach.database.codegen.tables.Storyposts.STORYPOSTS;
 
 @Path("post/{postId}/story")
 @Secured
@@ -34,7 +34,7 @@ public class PostStoryResource extends BaseResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Story> getPostStories(PaginatedRequest request)
-		throws SQLException, IOException
+			throws SQLException, IOException
 	{
 		if (postId == null)
 		{
@@ -47,11 +47,22 @@ public class PostStoryResource extends BaseResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			List<Story> stories = setPaginationAndOrderBy(context.selectFrom(STORIES)
-																 .whereExists(DSL.selectFrom(STORYPOSTS)
-																				 .where(STORYPOSTS.POST_ID.eq(postId)
-																										  .and(STORYPOSTS.STORY_ID.eq(STORIES.ID)))))
-				.fetchInto(Story.class);
+			SelectWhereStep<?> step = context.selectFrom(STORIES);
+
+			SelectConditionStep<?> condition = DSL.select()
+																 .from(STORYPOSTS)
+																 .leftJoin(POSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
+																 .where(STORYPOSTS.POST_ID.eq(postId)
+																						  .and(STORYPOSTS.STORY_ID.eq(STORIES.ID)));
+
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition.and(POSTS.VISIBLE.eq(true));
+
+			step.whereExists(condition);
+
+			List<Story> stories = setPaginationAndOrderBy(step)
+					.fetchInto(Story.class);
 
 			stories.forEach(s -> {
 				List<Hike> posts = context.select().from(POSTS).leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID)).where(STORYPOSTS.STORY_ID.eq(s.getId())).fetchInto(Hike.class);

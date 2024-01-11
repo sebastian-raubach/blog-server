@@ -1,6 +1,6 @@
 package blog.raubach.resource;
 
-import blog.raubach.Secured;
+import blog.raubach.*;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.StoriesRecord;
@@ -11,6 +11,8 @@ import org.jooq.*;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+import org.jooq.impl.DSL;
+
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.sql.*;
@@ -53,6 +55,13 @@ public class StoryResource extends ContextResource
 
 			SelectWhereStep<StoriesRecord> step = context.selectFrom(STORIES);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			if (storyId != null)
 				step.where(STORIES.ID.eq(storyId));
 
@@ -64,6 +73,7 @@ public class StoryResource extends ContextResource
 										  .from(POSTS)
 										  .leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
 										  .where(STORYPOSTS.STORY_ID.eq(story.getId()))
+										  .and(condition)
 										  .orderBy(POSTS.CREATED_ON.asc())
 										  .fetchInto(Hike.class);
 				posts.forEach(p -> {

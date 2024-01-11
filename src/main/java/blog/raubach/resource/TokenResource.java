@@ -79,7 +79,6 @@ public class TokenResource extends ContextResource
 
 		UsersRecord user;
 
-		// TODO: Check credentials
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
@@ -102,7 +101,7 @@ public class TokenResource extends ContextResource
 		{
 			token = UUID.randomUUID().toString();
 			imageToken = UUID.randomUUID().toString();
-			AuthenticationFilter.addToken(this.req, this.resp, token, imageToken, null);
+			AuthenticationFilter.addToken(this.req, this.resp, token, imageToken, user.getId());
 		}
 		else
 		{

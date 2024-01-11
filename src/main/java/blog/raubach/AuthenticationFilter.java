@@ -74,6 +74,43 @@ public class AuthenticationFilter implements ContainerRequestFilter
 		if (Objects.equals(token, "null"))
 			token = null;
 
+		final String finalToken = token;
+
+		final SecurityContext currentSecurityContext = requestContext.getSecurityContext();
+		requestContext.setSecurityContext(new SecurityContext()
+		{
+			@Override
+			public Principal getUserPrincipal()
+			{
+				UserDetails details = finalToken == null ? null : tokenToTimestamp.get(finalToken);
+
+				if (details == null)
+				{
+					details = new UserDetails(-1000, null, null, AGE);
+				}
+
+				return details;
+			}
+
+			@Override
+			public boolean isUserInRole(String role)
+			{
+				return true;
+			}
+
+			@Override
+			public boolean isSecure()
+			{
+				return currentSecurityContext.isSecure();
+			}
+
+			@Override
+			public String getAuthenticationScheme()
+			{
+				return AUTHENTICATION_SCHEME;
+			}
+		});
+
 		Class<?> resourceClass = resourceInfo.getResourceClass();
 		boolean isClassFree = resourceClass.getAnnotation(PermitAll.class) != null;
 

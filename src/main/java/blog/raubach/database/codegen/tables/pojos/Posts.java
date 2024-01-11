@@ -24,6 +24,7 @@ public class Posts implements Serializable {
     private String    title;
     private String    content;
     private String    contentMarkdown;
+    private Boolean   visible;
     private Integer   viewCount;
     private Timestamp endDate;
     private Timestamp createdOn;
@@ -37,6 +38,7 @@ public class Posts implements Serializable {
         this.title = value.title;
         this.content = value.content;
         this.contentMarkdown = value.contentMarkdown;
+        this.visible = value.visible;
         this.viewCount = value.viewCount;
         this.endDate = value.endDate;
         this.createdOn = value.createdOn;
@@ -49,6 +51,7 @@ public class Posts implements Serializable {
         String    title,
         String    content,
         String    contentMarkdown,
+        Boolean   visible,
         Integer   viewCount,
         Timestamp endDate,
         Timestamp createdOn,
@@ -59,6 +62,7 @@ public class Posts implements Serializable {
         this.title = title;
         this.content = content;
         this.contentMarkdown = contentMarkdown;
+        this.visible = visible;
         this.viewCount = viewCount;
         this.endDate = endDate;
         this.createdOn = createdOn;
@@ -136,6 +140,20 @@ public class Posts implements Serializable {
     }
 
     /**
+     * Getter for <code>blog_db.posts.visible</code>.
+     */
+    public Boolean getVisible() {
+        return this.visible;
+    }
+
+    /**
+     * Setter for <code>blog_db.posts.visible</code>.
+     */
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
+    }
+
+    /**
      * Getter for <code>blog_db.posts.view_count</code>.
      */
     public Integer getViewCount() {
@@ -200,6 +218,7 @@ public class Posts implements Serializable {
         sb.append(", ").append(title);
         sb.append(", ").append(content);
         sb.append(", ").append(contentMarkdown);
+        sb.append(", ").append(visible);
         sb.append(", ").append(viewCount);
         sb.append(", ").append(endDate);
         sb.append(", ").append(createdOn);

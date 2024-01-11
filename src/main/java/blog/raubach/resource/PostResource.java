@@ -1,6 +1,6 @@
 package blog.raubach.resource;
 
-import blog.raubach.Secured;
+import blog.raubach.*;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
@@ -23,7 +23,6 @@ import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
-import static blog.raubach.database.codegen.tables.Postimages.POSTIMAGES;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 import static blog.raubach.database.codegen.tables.Relationships.RELATIONSHIPS;
@@ -57,6 +56,7 @@ public class PostResource extends ContextResource
 
 			post.setTitle(hike.getTitle());
 			post.setContentMarkdown(hike.getContentMarkdown());
+			post.setVisible(hike.getVisible());
 			post.setCreatedOn(hike.getCreatedOn());
 			post.setEndDate(hike.getEndDate());
 			return Response.ok(post.store() > 0).build();
@@ -80,8 +80,16 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+							   .and(condition)
 							   .fetchAnyInto(Hike.class);
 
 			if (post == null)
@@ -132,8 +140,16 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+							   .and(condition)
 							   .fetchAnyInto(Hike.class);
 
 			if (post == null)
@@ -145,6 +161,7 @@ public class PostResource extends ContextResource
 			List<Hike> posts = context.selectFrom(POSTS)
 									  .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
 									  .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
+									  .and(condition)
 									  .fetchInto(Hike.class);
 			posts.forEach(p -> {
 				List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(p.getId())).fetchInto(ImageDetails.class);
@@ -184,8 +201,16 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
+							   .and(condition)
 							   .fetchAnyInto(Hike.class);
 
 			if (post == null)
@@ -234,7 +259,14 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAnyInto(Posts.class);
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
+			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).and(condition).fetchAnyInto(Posts.class);
 			Hikestats stats = context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(postId)).fetchAnyInto(Hikestats.class);
 
 			if (post == null || stats == null)
@@ -278,7 +310,14 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAnyInto(Posts.class);
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
+			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).and(condition).fetchAnyInto(Posts.class);
 			Hikestats stats = context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(postId)).fetchAnyInto(Hikestats.class);
 
 			if (post == null || stats == null)
@@ -328,7 +367,14 @@ public class PostResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
-			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAnyInto(Posts.class);
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
+			Posts post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).and(condition).fetchAnyInto(Posts.class);
 			Hikestats stats = context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(postId)).fetchAnyInto(Hikestats.class);
 
 			if (post == null || stats == null)

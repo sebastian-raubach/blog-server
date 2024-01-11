@@ -14,12 +14,12 @@ import org.jooq.DSLContext;
 import java.io.IOException;
 import java.sql.*;
 
-import static blog.raubach.database.codegen.tables.Hikeratings.*;
-import static blog.raubach.database.codegen.tables.Hikestats.*;
-import static blog.raubach.database.codegen.tables.Hills.*;
-import static blog.raubach.database.codegen.tables.Posthills.*;
-import static blog.raubach.database.codegen.tables.Posts.*;
-import static blog.raubach.database.codegen.tables.Postvideos.*;
+import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
+import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
+import static blog.raubach.database.codegen.tables.Hills.HILLS;
+import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
+import static blog.raubach.database.codegen.tables.Posts.POSTS;
+import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 
 @Path("import/post")
 @Secured
@@ -29,7 +29,7 @@ public class PostImportPutResource extends ContextResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Integer putPostImport(PostImport hi)
-		throws IOException, SQLException
+			throws IOException, SQLException
 	{
 		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
 		{
@@ -66,6 +66,7 @@ public class PostImportPutResource extends ContextResource
 				post.setTitle(hi.getTitle());
 				post.setContent(hi.getContent());
 				post.setContentMarkdown(hi.getContentMarkdown());
+				post.setVisible(hi.getVisible());
 				post.setEndDate(hi.getEndDate());
 				post.setCreatedOn(hi.getCreatedOn());
 				post.setType(hi.getType());

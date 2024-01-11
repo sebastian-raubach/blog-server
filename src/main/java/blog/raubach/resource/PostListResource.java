@@ -1,31 +1,31 @@
 package blog.raubach.resource;
 
-import blog.raubach.Secured;
+import blog.raubach.*;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.PostsRecord;
 import blog.raubach.pojo.*;
 import blog.raubach.utils.StringUtils;
-import org.jooq.*;
-import org.jooq.impl.DSL;
-
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.jetbrains.annotations.NotNull;
+import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
 
-import static blog.raubach.database.codegen.tables.Hikeratings.*;
-import static blog.raubach.database.codegen.tables.Hikestats.*;
-import static blog.raubach.database.codegen.tables.Hills.*;
+import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
+import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
+import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
-import static blog.raubach.database.codegen.tables.Posthills.*;
-import static blog.raubach.database.codegen.tables.Postimages.*;
-import static blog.raubach.database.codegen.tables.Posts.*;
-import static blog.raubach.database.codegen.tables.Postvideos.*;
+import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
+import static blog.raubach.database.codegen.tables.Postimages.POSTIMAGES;
+import static blog.raubach.database.codegen.tables.Posts.POSTS;
+import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 
 @Path("post")
 @Secured
@@ -36,13 +36,17 @@ public class PostListResource extends BaseResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Hike> getPosts(@QueryParam("year") Integer year, @QueryParam("postType") PostsType postType, @QueryParam("searchQuery") String searchQuery)
-		throws SQLException
+			throws SQLException
 	{
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
 
 			SelectWhereStep<PostsRecord> step = context.selectFrom(POSTS);
+
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				step.where(POSTS.VISIBLE.eq(true));
 
 			if (postType != null)
 				step.where(POSTS.TYPE.eq(postType));
@@ -68,7 +72,7 @@ public class PostListResource extends BaseResource
 
 			// Get the posts
 			List<Hike> posts = setPaginationAndOrderBy(step)
-				.fetchInto(Hike.class);
+					.fetchInto(Hike.class);
 
 			// Get the images and videos
 			posts.forEach(h -> {
@@ -95,22 +99,28 @@ public class PostListResource extends BaseResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public List<Hike> getPosts(PaginatedRequest request, @QueryParam("postType") PostsType postType)
-		throws SQLException
+			throws SQLException
 	{
 		processRequest(request);
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
 
-			SelectConditionStep<PostsRecord> step = context.selectFrom(POSTS)
-														   .where(POSTS.TYPE.eq(postType));
+			@NotNull SelectWhereStep<PostsRecord> step = context.selectFrom(POSTS);
+
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				step.where(POSTS.VISIBLE.eq(true));
+
+			if (postType != null)
+				step.where(POSTS.TYPE.eq(postType));
 
 			if (!StringUtils.isEmpty(searchTerm))
-				step.and(POSTS.TITLE.contains(searchTerm));
+				step.where(POSTS.TITLE.contains(searchTerm));
 
 			// Get the posts
 			List<Hike> posts = setPaginationAndOrderBy(step)
-				.fetchInto(Hike.class);
+					.fetchInto(Hike.class);
 
 			// Get the images and videos
 			posts.forEach(h -> {

@@ -11,6 +11,7 @@ public class PostImport
 	private String    title;
 	private String    content;
 	private String    contentMarkdown;
+	private Boolean   visible = true;
 	private Timestamp endDate;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
@@ -61,6 +62,17 @@ public class PostImport
 	public PostImport setContentMarkdown(String contentMarkdown)
 	{
 		this.contentMarkdown = contentMarkdown;
+		return this;
+	}
+
+	public Boolean getVisible()
+	{
+		return visible;
+	}
+
+	public PostImport setVisible(Boolean visible)
+	{
+		this.visible = visible;
 		return this;
 	}
 

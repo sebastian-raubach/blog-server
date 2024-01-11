@@ -13,7 +13,7 @@ import java.sql.Timestamp;
 import org.jooq.Field;
 import org.jooq.Identity;
 import org.jooq.Name;
-import org.jooq.Row9;
+import org.jooq.Row10;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -71,6 +71,11 @@ public class Posts extends TableImpl<PostsRecord> {
      * The column <code>blog_db.posts.content_markdown</code>.
      */
     public final TableField<PostsRecord, String> CONTENT_MARKDOWN = createField(DSL.name("content_markdown"), SQLDataType.CLOB, this, "");
+
+    /**
+     * The column <code>blog_db.posts.visible</code>.
+     */
+    public final TableField<PostsRecord, Boolean> VISIBLE = createField(DSL.name("visible"), SQLDataType.BOOLEAN.nullable(false).defaultValue(DSL.inline("1", SQLDataType.BOOLEAN)), this, "");
 
     /**
      * The column <code>blog_db.posts.view_count</code>.
@@ -163,12 +168,12 @@ public class Posts extends TableImpl<PostsRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row10 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Integer, PostsType, String, String, String, Integer, Timestamp, Timestamp, Timestamp> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row10<Integer, PostsType, String, String, String, Boolean, Integer, Timestamp, Timestamp, Timestamp> fieldsRow() {
+        return (Row10) super.fieldsRow();
     }
     // @formatter:on
 }

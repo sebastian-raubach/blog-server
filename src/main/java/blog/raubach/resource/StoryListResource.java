@@ -1,6 +1,6 @@
 package blog.raubach.resource;
 
-import blog.raubach.Secured;
+import blog.raubach.*;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.ImageDetails;
 import blog.raubach.database.codegen.tables.records.StoriesRecord;
@@ -44,6 +44,13 @@ public class StoryListResource extends BaseResource
 
 			SelectWhereStep<StoriesRecord> select = context.selectFrom(STORIES);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			if (!StringUtils.isEmpty(searchQuery))
 			{
 				select.where(STORIES.TITLE.contains(searchQuery))
@@ -51,18 +58,21 @@ public class StoryListResource extends BaseResource
 					  .orExists(DSL.selectOne().from(POSTS)
 								   .leftJoin(STORYPOSTS).on(STORYPOSTS.POST_ID.eq(POSTS.ID))
 								   .where(STORYPOSTS.STORY_ID.eq(STORIES.ID))
+								   .and(condition)
 								   .and(POSTS.TITLE.contains(searchQuery)
 												   .or(POSTS.CONTENT.contains(searchQuery))))
 					  .orExists(DSL.selectOne().from(POSTIMAGES)
 								   .leftJoin(POSTS).on(POSTS.ID.eq(POSTIMAGES.POST_ID))
 								   .leftJoin(STORYPOSTS).on(STORYPOSTS.POST_ID.eq(POSTS.ID))
 								   .where(STORYPOSTS.STORY_ID.eq(STORIES.ID))
+								   .and(condition)
 								   .and(POSTIMAGES.DESCRIPTION.contains(searchQuery)))
 					  .orExists(DSL.selectOne().from(POSTHILLS)
 								   .leftJoin(POSTS).on(POSTS.ID.eq(POSTHILLS.POST_ID))
 								   .leftJoin(STORYPOSTS).on(STORYPOSTS.POST_ID.eq(POSTS.ID))
 								   .leftJoin(HILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID))
 								   .where(STORYPOSTS.STORY_ID.eq(STORIES.ID))
+								   .and(condition)
 								   .and(HILLS.NAME.contains(searchQuery)
 												  .or(HILLS.REGION.contains(searchQuery))
 												  .or(HILLS.TYPE.cast(String.class).contains(searchQuery))));
@@ -75,6 +85,7 @@ public class StoryListResource extends BaseResource
 				List<Hike> posts = context.select().from(POSTS)
 										  .leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
 										  .where(STORYPOSTS.STORY_ID.eq(s.getId()))
+										  .and(condition)
 										  .orderBy(POSTS.CREATED_ON.asc())
 										  .fetchInto(Hike.class);
 				posts.forEach(p -> {
@@ -105,8 +116,20 @@ public class StoryListResource extends BaseResource
 
 			SelectWhereStep<StoriesRecord> select = context.selectFrom(STORIES);
 
+			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
+			Condition condition;
+			if (StringUtils.isEmpty(userDetails.getToken()))
+				condition = POSTS.VISIBLE.eq(true);
+			else
+				condition = DSL.trueCondition();
+
 			if (postId != null)
-				select.whereExists(DSL.selectOne().from(STORYPOSTS).where(STORYPOSTS.POST_ID.eq(postId)).and(STORYPOSTS.STORY_ID.eq(STORIES.ID)));
+				select.whereExists(DSL.selectOne()
+									  .from(STORYPOSTS)
+									  .leftJoin(POSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
+									  .where(STORYPOSTS.POST_ID.eq(postId))
+									  .and(condition)
+									  .and(STORYPOSTS.STORY_ID.eq(STORIES.ID)));
 
 			List<Story> stories = setPaginationAndOrderBy(select)
 					.fetchInto(Story.class);
@@ -115,6 +138,7 @@ public class StoryListResource extends BaseResource
 				List<Hike> posts = context.select().from(POSTS)
 										  .leftJoin(STORYPOSTS).on(POSTS.ID.eq(STORYPOSTS.POST_ID))
 										  .where(STORYPOSTS.STORY_ID.eq(s.getId()))
+										  .and(condition)
 										  .orderBy(POSTS.CREATED_ON.asc())
 										  .fetchInto(Hike.class);
 				posts.forEach(p -> {
