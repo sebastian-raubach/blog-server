@@ -3,9 +3,9 @@ package blog.raubach.resource;
 import blog.raubach.*;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
-import blog.raubach.database.codegen.tables.pojos.Posts;
-import blog.raubach.database.codegen.tables.records.HillsRecord;
-import blog.raubach.pojo.Hill;
+import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.database.codegen.tables.records.*;
+import blog.raubach.pojo.*;
 import blog.raubach.utils.StringUtils;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
@@ -14,9 +14,12 @@ import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import java.sql.*;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
+import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 
@@ -28,7 +31,7 @@ public class HillResource extends ContextResource
 	@GET
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Hill> getHill(@QueryParam("name") String name)
+	public List<HillWithPosts> getHill(@QueryParam("name") String name)
 			throws SQLException
 	{
 		try (Connection conn = Database.getConnection())
@@ -40,7 +43,7 @@ public class HillResource extends ContextResource
 			if (!StringUtils.isEmpty(name))
 				step.where(HILLS.NAME.like("%" + name + "%"));
 
-			List<Hill> hills = step.fetchInto(Hill.class);
+			List<HillWithPosts> hills = step.fetchInto(HillWithPosts.class);
 
 			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
 			Condition condition;
@@ -49,13 +52,30 @@ public class HillResource extends ContextResource
 			else
 				condition = DSL.trueCondition();
 
-			hills.forEach(h -> h.setPosts(context.select()
-												 .from(POSTS)
-												 .leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID))
-												 .where(POSTS.TYPE.eq(PostsType.hike))
-												 .and(condition)
-												 .and(POSTHILLS.HILL_ID.eq(h.getId()))
-												 .fetchInto(Posts.class)));
+			Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
+
+			hills.forEach(h -> {
+				h.setPosts(context.select()
+								  .from(POSTS)
+								  .leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID))
+								  .where(POSTS.TYPE.eq(PostsType.hike))
+								  .and(condition)
+								  .and(POSTHILLS.HILL_ID.eq(h.getId()))
+								  .fetchInto(Posts.class));
+
+				List<HillIndividuals> inds = context.select()
+													.from(HILL_INDIVIDUALS)
+													.where(HILL_INDIVIDUALS.HILL_ID.eq(h.getId()))
+													.fetchInto(HillIndividuals.class);
+
+				h.setHillIndividuals(inds.stream().map(i -> {
+					Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+
+					return new IndividualRecord()
+							.setIndividual(match)
+							.setHillIndividuals(inds);
+				}).collect(Collectors.toList()));
+			});
 
 			return hills;
 		}

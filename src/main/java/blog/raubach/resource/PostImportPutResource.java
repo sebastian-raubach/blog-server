@@ -13,10 +13,13 @@ import org.jooq.DSLContext;
 
 import java.io.IOException;
 import java.sql.*;
+import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
 import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
+import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
+import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
@@ -107,6 +110,8 @@ public class PostImportPutResource extends ContextResource
 				stats.store();
 			}
 
+			List<HillsRecord> hills = new ArrayList<>();
+
 			if (hillsValid && !CollectionUtils.isEmpty(hi.getHills()))
 			{
 				for (PostHill hill : hi.getHills())
@@ -137,6 +142,8 @@ public class PostImportPutResource extends ContextResource
 						h.store();
 					}
 
+					hills.add(h);
+
 					// Link to post/hike
 					PosthillsRecord ph = context.selectFrom(POSTHILLS).where(POSTHILLS.HILL_ID.eq(h.getId())).and(POSTHILLS.POST_ID.eq(post.getId())).fetchAny();
 
@@ -159,6 +166,26 @@ public class PostImportPutResource extends ContextResource
 						   .set(POSTVIDEOS.POST_ID, post.getId())
 						   .set(POSTVIDEOS.VIDEO_PATH, video)
 						   .execute();
+				}
+			}
+
+			if (!CollectionUtils.isEmpty(hi.getIndividuals()) && !CollectionUtils.isEmpty(hills))
+			{
+				Set<Integer> exist = context.selectDistinct(INDIVIDUALS.ID).from(INDIVIDUALS).fetchSet(INDIVIDUALS.ID);
+				Set<Integer> requested = new HashSet<>();
+				Collections.addAll(requested, hi.getIndividuals());
+
+				requested.retainAll(exist);
+
+				for (Integer r : requested)
+				{
+					for (HillsRecord h : hills)
+					{
+						context.insertInto(HILL_INDIVIDUALS)
+							   .set(HILL_INDIVIDUALS.INDIVIDUAL_ID, r)
+							   .set(HILL_INDIVIDUALS.HILL_ID, h.getId())
+							   .execute();
+					}
 				}
 			}
 

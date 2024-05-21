@@ -1,8 +1,6 @@
 package blog.raubach.pojo;
 
-import blog.raubach.database.codegen.tables.pojos.Hills;
-
-public class PostHill extends Hills
+public class PostHill extends Hill
 {
 	private boolean successful;
 

@@ -17,11 +17,14 @@ import java.io.*;
 import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
 import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
+import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
+import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
@@ -117,6 +120,25 @@ public class PostResource extends ContextResource
 			post.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(post.getId())).fetchInto(PostHill.class));
 			post.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(post.getId())).fetchAnyInto(Hikestats.class));
 			post.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAnyInto(Hikeratings.class));
+
+			if (!CollectionUtils.isEmpty(post.getHills()))
+			{
+				Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
+				post.getHills().forEach(h -> {
+					List<HillIndividuals> inds = context.select()
+														.from(HILL_INDIVIDUALS)
+														.where(HILL_INDIVIDUALS.HILL_ID.eq(h.getId()))
+														.fetchInto(HillIndividuals.class);
+
+					h.setHillIndividuals(inds.stream().map(i -> {
+						Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+
+						return new IndividualRecord()
+								.setIndividual(match)
+								.setHillIndividuals(inds);
+					}).collect(Collectors.toList()));
+				});
+			}
 
 			return post;
 		}

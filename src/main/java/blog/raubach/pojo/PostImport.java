@@ -12,12 +12,13 @@ public class PostImport
 	private String    content;
 	private String    contentMarkdown;
 	private Boolean   visible = true;
+	private Integer[] individuals;
 	private Timestamp endDate;
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
-	private PostHill    hills[];
-	private String      videos[];
+	private PostHill[]  hills;
+	private String[]    videos;
 	private Hikestats   stats;
 	private Hikeratings rating;
 
@@ -73,6 +74,17 @@ public class PostImport
 	public PostImport setVisible(Boolean visible)
 	{
 		this.visible = visible;
+		return this;
+	}
+
+	public Integer[] getIndividuals()
+	{
+		return individuals;
+	}
+
+	public PostImport setIndividuals(Integer[] individuals)
+	{
+		this.individuals = individuals;
 		return this;
 	}
 
