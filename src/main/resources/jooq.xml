@@ -30,6 +30,18 @@
 					<name>BOOLEAN</name>
 					<types>.*tinyint.*</types>
 				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.SiteRatingBinding</binding>
+					<expression>.*(sites)\.(rating)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.SiteRating</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.SiteFacilitiesBinding</binding>
+					<expression>.*(sites)\.(facilities)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.SiteFacilities</userType>
+				</forcedType>
 			</forcedTypes>
 		</database>
 

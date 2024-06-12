@@ -9,6 +9,7 @@ public class Hike extends Post
 	private List<PostHill> hills;
 	private Hikestats stats;
 	private Hikeratings ratings;
+	private List<Sites> sites;
 
 	public List<PostHill> getHills()
 	{
@@ -40,6 +41,17 @@ public class Hike extends Post
 	public Hike setRatings(Hikeratings ratings)
 	{
 		this.ratings = ratings;
+		return this;
+	}
+
+	public List<Sites> getSites()
+	{
+		return sites;
+	}
+
+	public Hike setSites(List<Sites> sites)
+	{
+		this.sites = sites;
 		return this;
 	}
 }

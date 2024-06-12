@@ -27,8 +27,10 @@ import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
+import static blog.raubach.database.codegen.tables.Postsites.POSTSITES;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 import static blog.raubach.database.codegen.tables.Relationships.RELATIONSHIPS;
+import static blog.raubach.database.codegen.tables.Sites.SITES;
 
 @Path("post/{postId}")
 @Secured
@@ -36,6 +38,35 @@ public class PostResource extends ContextResource
 {
 	@PathParam("postId")
 	private Integer postId;
+
+	@POST
+	@Path("/site")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response postSite(Sites site)
+			throws SQLException
+	{
+		if (StringUtils.isEmpty(site.getName()) || site.getSitetype() == null || site.getGroundtype() == null || site.getLatitude() == null || site.getLongitude() == null || site.getRating() == null || site.getFacilities() == null)
+			return Response.status(Response.Status.BAD_REQUEST).build();
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			PostsRecord postsRecord = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAny();
+
+			if (postsRecord == null)
+				return Response.status(Response.Status.NOT_FOUND).build();
+
+			SitesRecord record = context.newRecord(SITES, site);
+			record.store();
+
+			PostsitesRecord postSites = context.newRecord(POSTSITES);
+			postSites.setSiteId(record.getId());
+			postSites.setPostId(postId);
+			return Response.ok(postSites.store() > 0).build();
+		}
+	}
 
 	@PATCH
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -120,6 +151,7 @@ public class PostResource extends ContextResource
 			post.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(post.getId())).fetchInto(PostHill.class));
 			post.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(post.getId())).fetchAnyInto(Hikestats.class));
 			post.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAnyInto(Hikeratings.class));
+			post.setSites(context.select(SITES.fields()).from(SITES).leftJoin(POSTSITES).on(SITES.ID.eq(POSTSITES.SITE_ID)).where(POSTSITES.POST_ID.eq(post.getId())).fetchInto(Sites.class));
 
 			if (!CollectionUtils.isEmpty(post.getHills()))
 			{
@@ -132,6 +164,7 @@ public class PostResource extends ContextResource
 
 					h.setHillIndividuals(inds.stream().map(i -> {
 						Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+						match.setPhoto(null);
 
 						return new IndividualRecord()
 								.setIndividual(match)

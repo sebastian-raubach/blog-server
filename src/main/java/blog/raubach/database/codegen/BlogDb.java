@@ -14,10 +14,12 @@ import blog.raubach.database.codegen.tables.Individuals;
 import blog.raubach.database.codegen.tables.Posthills;
 import blog.raubach.database.codegen.tables.Postimages;
 import blog.raubach.database.codegen.tables.Posts;
+import blog.raubach.database.codegen.tables.Postsites;
 import blog.raubach.database.codegen.tables.Postusers;
 import blog.raubach.database.codegen.tables.Postvideos;
 import blog.raubach.database.codegen.tables.Relationships;
 import blog.raubach.database.codegen.tables.SchemaVersion;
+import blog.raubach.database.codegen.tables.Sites;
 import blog.raubach.database.codegen.tables.Stories;
 import blog.raubach.database.codegen.tables.Storyposts;
 import blog.raubach.database.codegen.tables.Users;
@@ -70,10 +72,12 @@ public class BlogDb extends SchemaImpl {
             Posthills.POSTHILLS,
             Postimages.POSTIMAGES,
             Posts.POSTS,
+            Postsites.POSTSITES,
             Postusers.POSTUSERS,
             Postvideos.POSTVIDEOS,
             Relationships.RELATIONSHIPS,
             SchemaVersion.SCHEMA_VERSION,
+            Sites.SITES,
             Stories.STORIES,
             Storyposts.STORYPOSTS,
             Users.USERS

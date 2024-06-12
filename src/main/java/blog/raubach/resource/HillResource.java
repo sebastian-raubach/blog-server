@@ -55,7 +55,7 @@ public class HillResource extends ContextResource
 			Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
 
 			hills.forEach(h -> {
-				h.setPosts(context.select()
+				h.setPosts(context.select(POSTS.ID, POSTS.TITLE, POSTS.CREATED_ON)
 								  .from(POSTS)
 								  .leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID))
 								  .where(POSTS.TYPE.eq(PostsType.hike))
@@ -70,6 +70,7 @@ public class HillResource extends ContextResource
 
 				h.setHillIndividuals(inds.stream().map(i -> {
 					Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+					match.setPhoto(null);
 
 					return new IndividualRecord()
 							.setIndividual(match)
