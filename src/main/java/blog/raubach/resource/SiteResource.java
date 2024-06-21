@@ -3,8 +3,6 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.tables.pojos.Sites;
-import blog.raubach.database.codegen.tables.records.SitesRecord;
-import blog.raubach.utils.StringUtils;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
