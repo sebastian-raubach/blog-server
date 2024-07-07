@@ -9,6 +9,7 @@ public class SiteFacilities
 	private Boolean cafe;
 	private Boolean electricHookup;
 	private Boolean localDogWalk;
+	private Boolean wifi;
 
 	public Boolean getToilets()
 	{
@@ -84,6 +85,17 @@ public class SiteFacilities
 	public SiteFacilities setLocalDogWalk(Boolean localDogWalk)
 	{
 		this.localDogWalk = localDogWalk;
+		return this;
+	}
+
+	public Boolean getWifi()
+	{
+		return wifi;
+	}
+
+	public SiteFacilities setWifi(Boolean wifi)
+	{
+		this.wifi = wifi;
 		return this;
 	}
 }
