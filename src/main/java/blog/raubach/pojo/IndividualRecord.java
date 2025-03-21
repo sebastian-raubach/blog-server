@@ -7,7 +7,7 @@ import java.util.List;
 public class IndividualRecord
 {
 	private Individuals           individual;
-	private List<HillIndividuals> hillIndividuals;
+	private List<PostIndividuals> postIndividuals;
 
 	public Individuals getIndividual()
 	{
@@ -20,14 +20,14 @@ public class IndividualRecord
 		return this;
 	}
 
-	public List<HillIndividuals> getHillIndividuals()
+	public List<PostIndividuals> getPostIndividuals()
 	{
-		return hillIndividuals;
+		return postIndividuals;
 	}
 
-	public IndividualRecord setHillIndividuals(List<HillIndividuals> hillIndividuals)
+	public IndividualRecord setPostIndividuals(List<PostIndividuals> postIndividuals)
 	{
-		this.hillIndividuals = hillIndividuals;
+		this.postIndividuals = postIndividuals;
 		return this;
 	}
 }

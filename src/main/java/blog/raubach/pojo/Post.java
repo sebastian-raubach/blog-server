@@ -9,6 +9,19 @@ public class Post extends Posts
 	private List<ImageDetails> images;
 	private List<Postvideos>   videos;
 
+	private List<IndividualRecord> postIndividuals;
+
+	public List<IndividualRecord> getPostIndividuals()
+	{
+		return postIndividuals;
+	}
+
+	public Post setPostIndividuals(List<IndividualRecord> postIndividuals)
+	{
+		this.postIndividuals = postIndividuals;
+		return this;
+	}
+
 	public List<ImageDetails> getImages()
 	{
 		return images;

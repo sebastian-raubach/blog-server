@@ -17,9 +17,9 @@ import java.util.*;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
 import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
-import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
+import static blog.raubach.database.codegen.tables.PostIndividuals.POST_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
@@ -179,13 +179,10 @@ public class PostImportPutResource extends ContextResource
 
 				for (Integer r : requested)
 				{
-					for (HillsRecord h : hills)
-					{
-						context.insertInto(HILL_INDIVIDUALS)
-							   .set(HILL_INDIVIDUALS.INDIVIDUAL_ID, r)
-							   .set(HILL_INDIVIDUALS.HILL_ID, h.getId())
-							   .execute();
-					}
+					context.insertInto(POST_INDIVIDUALS)
+							.set(POST_INDIVIDUALS.POST_ID, post.getId())
+							.set(POST_INDIVIDUALS.INDIVIDUAL_ID, r)
+							.execute();
 				}
 			}
 

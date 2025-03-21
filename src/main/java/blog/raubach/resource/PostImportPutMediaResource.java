@@ -2,6 +2,7 @@ package blog.raubach.resource;
 
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
+import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.utils.*;
 import blog.raubach.utils.task.GoogleElevationTask;
@@ -18,6 +19,7 @@ import java.util.*;
 import static blog.raubach.database.codegen.tables.Hikestats.*;
 import static blog.raubach.database.codegen.tables.Images.*;
 import static blog.raubach.database.codegen.tables.Postimages.*;
+import static blog.raubach.database.codegen.tables.Posts.POSTS;
 
 @Path("post/media/{postId}")
 @Secured
@@ -58,6 +60,14 @@ public class PostImportPutMediaResource extends ContextResource
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
+
+			PostsRecord post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAny();
+
+			if (post == null)
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return false;
+			}
 
 			if (!CollectionUtils.isEmpty(images))
 			{
@@ -122,7 +132,7 @@ public class PostImportPutMediaResource extends ContextResource
 				hs.store();
 
 				// If no profiles have been provided, fire off the Google Elevation API correction task to generate the profiles.
-				if (StringUtils.isEmpty(hs.getElevationProfilePath()) || StringUtils.isEmpty(hs.getTimeDistanceProfilePath()))
+				if (post.getType() == PostsType.hike && (StringUtils.isEmpty(hs.getElevationProfilePath()) || StringUtils.isEmpty(hs.getTimeDistanceProfilePath())))
 					new Thread(new GoogleElevationTask(hs.getPostId())).start();
 			}
 		}

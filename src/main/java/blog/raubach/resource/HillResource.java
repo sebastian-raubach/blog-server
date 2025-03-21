@@ -17,9 +17,9 @@ import java.sql.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
+import static blog.raubach.database.codegen.tables.PostIndividuals.POST_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 
@@ -63,10 +63,12 @@ public class HillResource extends ContextResource
 								  .and(POSTHILLS.HILL_ID.eq(h.getId()))
 								  .fetchInto(Posts.class));
 
-				List<HillIndividuals> inds = context.select()
-													.from(HILL_INDIVIDUALS)
-													.where(HILL_INDIVIDUALS.HILL_ID.eq(h.getId()))
-													.fetchInto(HillIndividuals.class);
+				List<PostIndividuals> inds = context.select()
+													.from(POST_INDIVIDUALS)
+													.leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
+													.leftJoin(POSTHILLS).on(POSTHILLS.POST_ID.eq(POSTS.ID))
+													.where(POSTHILLS.HILL_ID.eq(h.getId()))
+													.fetchInto(PostIndividuals.class);
 
 				h.setHillIndividuals(inds.stream().map(i -> {
 					Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
@@ -74,7 +76,7 @@ public class HillResource extends ContextResource
 
 					return new IndividualRecord()
 							.setIndividual(match)
-							.setHillIndividuals(inds);
+							.setPostIndividuals(inds);
 				}).collect(Collectors.toList()));
 			});
 

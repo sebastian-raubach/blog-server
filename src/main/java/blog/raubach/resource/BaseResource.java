@@ -3,6 +3,7 @@ package blog.raubach.resource;
 import blog.raubach.pojo.PaginatedRequest;
 import blog.raubach.utils.StringUtils;
 import org.jooq.*;
+import org.jooq.Record;
 import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 

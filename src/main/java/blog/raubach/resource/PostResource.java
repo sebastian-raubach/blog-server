@@ -21,10 +21,10 @@ import java.util.stream.Collectors;
 
 import static blog.raubach.database.codegen.tables.Hikeratings.HIKERATINGS;
 import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
-import static blog.raubach.database.codegen.tables.HillIndividuals.HILL_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Hills.HILLS;
 import static blog.raubach.database.codegen.tables.ImageDetails.IMAGE_DETAILS;
 import static blog.raubach.database.codegen.tables.Individuals.INDIVIDUALS;
+import static blog.raubach.database.codegen.tables.PostIndividuals.POST_INDIVIDUALS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
 import static blog.raubach.database.codegen.tables.Posts.POSTS;
 import static blog.raubach.database.codegen.tables.Postsites.POSTSITES;
@@ -153,25 +153,21 @@ public class PostResource extends ContextResource
 			post.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAnyInto(Hikeratings.class));
 			post.setSites(context.select(SITES.fields()).from(SITES).leftJoin(POSTSITES).on(SITES.ID.eq(POSTSITES.SITE_ID)).where(POSTSITES.POST_ID.eq(post.getId())).fetchInto(Sites.class));
 
-			if (!CollectionUtils.isEmpty(post.getHills()))
-			{
-				Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
-				post.getHills().forEach(h -> {
-					List<HillIndividuals> inds = context.select()
-														.from(HILL_INDIVIDUALS)
-														.where(HILL_INDIVIDUALS.HILL_ID.eq(h.getId()))
-														.fetchInto(HillIndividuals.class);
+			Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
+			List<PostIndividuals> inds = context.select()
+												.from(POST_INDIVIDUALS)
+												.leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
+												.where(POSTS.ID.eq(post.getId()))
+												.fetchInto(PostIndividuals.class);
 
-					h.setHillIndividuals(inds.stream().map(i -> {
-						Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
-						match.setPhoto(null);
+			post.setPostIndividuals(inds.stream().map(i -> {
+				Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+				match.setPhoto(null);
 
-						return new IndividualRecord()
-								.setIndividual(match)
-								.setHillIndividuals(inds);
-					}).collect(Collectors.toList()));
-				});
-			}
+				return new IndividualRecord()
+						.setIndividual(match)
+						.setPostIndividuals(inds);
+			}).collect(Collectors.toList()));
 
 			return post;
 		}
@@ -232,6 +228,22 @@ public class PostResource extends ContextResource
 				p.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(p.getId())).fetchInto(PostHill.class));
 				p.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(p.getId())).fetchAnyInto(Hikestats.class));
 				p.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(p.getId())).fetchAnyInto(Hikeratings.class));
+
+				Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
+				List<PostIndividuals> inds = context.select()
+													.from(POST_INDIVIDUALS)
+													.leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
+													.where(POSTS.ID.eq(p.getId()))
+													.fetchInto(PostIndividuals.class);
+
+				p.setPostIndividuals(inds.stream().map(i -> {
+					Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
+					match.setPhoto(null);
+
+					return new IndividualRecord()
+							.setIndividual(match)
+							.setPostIndividuals(inds);
+				}).collect(Collectors.toList()));
 			});
 
 			return posts;

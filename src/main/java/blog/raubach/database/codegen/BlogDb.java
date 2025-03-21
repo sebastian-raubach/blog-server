@@ -6,11 +6,11 @@ package blog.raubach.database.codegen;
 
 import blog.raubach.database.codegen.tables.Hikeratings;
 import blog.raubach.database.codegen.tables.Hikestats;
-import blog.raubach.database.codegen.tables.HillIndividuals;
 import blog.raubach.database.codegen.tables.Hills;
 import blog.raubach.database.codegen.tables.ImageDetails;
 import blog.raubach.database.codegen.tables.Images;
 import blog.raubach.database.codegen.tables.Individuals;
+import blog.raubach.database.codegen.tables.PostIndividuals;
 import blog.raubach.database.codegen.tables.Posthills;
 import blog.raubach.database.codegen.tables.Postimages;
 import blog.raubach.database.codegen.tables.Posts;
@@ -64,11 +64,11 @@ public class BlogDb extends SchemaImpl {
         return Arrays.asList(
             Hikeratings.HIKERATINGS,
             Hikestats.HIKESTATS,
-            HillIndividuals.HILL_INDIVIDUALS,
             Hills.HILLS,
             ImageDetails.IMAGE_DETAILS,
             Images.IMAGES,
             Individuals.INDIVIDUALS,
+            PostIndividuals.POST_INDIVIDUALS,
             Posthills.POSTHILLS,
             Postimages.POSTIMAGES,
             Posts.POSTS,
