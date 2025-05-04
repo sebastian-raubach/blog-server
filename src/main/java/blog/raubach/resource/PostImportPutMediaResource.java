@@ -3,6 +3,7 @@ package blog.raubach.resource;
 import blog.raubach.Secured;
 import blog.raubach.database.Database;
 import blog.raubach.database.codegen.enums.PostsType;
+import blog.raubach.database.codegen.tables.pojos.Postimages;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.utils.*;
 import blog.raubach.utils.task.GoogleElevationTask;
@@ -12,6 +13,7 @@ import org.jooq.DSLContext;
 
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
+
 import java.io.*;
 import java.sql.*;
 import java.util.*;
@@ -25,12 +27,57 @@ import static blog.raubach.database.codegen.tables.Posts.POSTS;
 @Secured
 public class PostImportPutMediaResource extends ContextResource
 {
+	@PathParam("postId")
+	Integer postId;
+
+	@PATCH
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public boolean patchPostMedia(List<Postimages> updates)
+			throws IOException, SQLException
+	{
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			PostsRecord post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAny();
+
+			if (post == null)
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return false;
+			}
+
+			List<Integer> ids = updates.stream().map(Postimages::getImageId).toList();
+
+			Map<Integer, PostimagesRecord> dbImages = context.selectFrom(POSTIMAGES)
+															 .where(POSTIMAGES.POST_ID.eq(postId))
+															 .and(POSTIMAGES.IMAGE_ID.in(ids))
+															 .fetchMap(POSTIMAGES.IMAGE_ID);
+
+			if (dbImages.size() != updates.size())
+			{
+				resp.sendError(Response.Status.NOT_FOUND.getStatusCode());
+				return false;
+			}
+
+			for (Postimages update : updates)
+			{
+				PostimagesRecord pir = dbImages.get(update.getImageId());
+				pir.setDescription(update.getDescription());
+				pir.setIsPrimary(update.getIsPrimary());
+				pir.store(POSTIMAGES.DESCRIPTION, POSTIMAGES.IS_PRIMARY);
+			}
+		}
+
+		return true;
+	}
+
 	@POST
 	@Consumes(MediaType.MULTIPART_FORM_DATA)
 	@Produces(MediaType.APPLICATION_JSON)
-	public boolean postPostMedia(@PathParam("postId") Integer postId,
-								 FormDataMultiPart form)
-		throws IOException, SQLException
+	public boolean postPostMedia(FormDataMultiPart form)
+			throws IOException, SQLException
 	{
 		//https://stackoverflow.com/questions/12125277/how-to-read-several-file-inputs-with-the-same-name-from-a-multipart-form-with
 
