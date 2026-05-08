@@ -7,7 +7,6 @@ package blog.raubach.database.codegen.tables;
 import blog.raubach.database.binding.SiteFacilitiesBinding;
 import blog.raubach.database.binding.SiteRatingBinding;
 import blog.raubach.database.codegen.BlogDb;
-import blog.raubach.database.codegen.enums.SitesGroundtype;
 import blog.raubach.database.codegen.enums.SitesSitetype;
 import blog.raubach.database.codegen.tables.records.SitesRecord;
 import blog.raubach.pojo.SiteFacilities;
@@ -18,7 +17,7 @@ import java.sql.Timestamp;
 import org.jooq.Field;
 import org.jooq.Identity;
 import org.jooq.Name;
-import org.jooq.Row12;
+import org.jooq.Row11;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -71,11 +70,6 @@ public class Sites extends TableImpl<SitesRecord> {
      * The column <code>blog_db.sites.sitetype</code>.
      */
     public final TableField<SitesRecord, SitesSitetype> SITETYPE = createField(DSL.name("sitetype"), SQLDataType.VARCHAR(8).nullable(false).defaultValue(DSL.inline("campsite", SQLDataType.VARCHAR)).asEnumDataType(blog.raubach.database.codegen.enums.SitesSitetype.class), this, "");
-
-    /**
-     * The column <code>blog_db.sites.groundtype</code>.
-     */
-    public final TableField<SitesRecord, SitesGroundtype> GROUNDTYPE = createField(DSL.name("groundtype"), SQLDataType.VARCHAR(6).nullable(false).defaultValue(DSL.inline("grass", SQLDataType.VARCHAR)).asEnumDataType(blog.raubach.database.codegen.enums.SitesGroundtype.class), this, "");
 
     /**
      * The column <code>blog_db.sites.latitude</code>.
@@ -183,12 +177,12 @@ public class Sites extends TableImpl<SitesRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row12 type methods
+    // Row11 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row12<Integer, String, String, SitesSitetype, SitesGroundtype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp> fieldsRow() {
-        return (Row12) super.fieldsRow();
+    public Row11<Integer, String, String, SitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp> fieldsRow() {
+        return (Row11) super.fieldsRow();
     }
     // @formatter:on
 }

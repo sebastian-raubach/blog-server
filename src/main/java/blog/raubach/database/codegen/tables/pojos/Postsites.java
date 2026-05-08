@@ -4,6 +4,8 @@
 package blog.raubach.database.codegen.tables.pojos;
 
 
+import blog.raubach.database.codegen.enums.PostsitesGroundtype;
+
 import java.io.Serializable;
 
 
@@ -16,22 +18,26 @@ public class Postsites implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer postId;
-    private Integer siteId;
+    private Integer             postId;
+    private Integer             siteId;
+    private PostsitesGroundtype groundtype;
 
     public Postsites() {}
 
     public Postsites(Postsites value) {
         this.postId = value.postId;
         this.siteId = value.siteId;
+        this.groundtype = value.groundtype;
     }
 
     public Postsites(
-        Integer postId,
-        Integer siteId
+        Integer             postId,
+        Integer             siteId,
+        PostsitesGroundtype groundtype
     ) {
         this.postId = postId;
         this.siteId = siteId;
+        this.groundtype = groundtype;
     }
 
     /**
@@ -62,12 +68,27 @@ public class Postsites implements Serializable {
         this.siteId = siteId;
     }
 
+    /**
+     * Getter for <code>blog_db.postsites.groundtype</code>.
+     */
+    public PostsitesGroundtype getGroundtype() {
+        return this.groundtype;
+    }
+
+    /**
+     * Setter for <code>blog_db.postsites.groundtype</code>.
+     */
+    public void setGroundtype(PostsitesGroundtype groundtype) {
+        this.groundtype = groundtype;
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("Postsites (");
 
         sb.append(postId);
         sb.append(", ").append(siteId);
+        sb.append(", ").append(groundtype);
 
         sb.append(")");
         return sb.toString();

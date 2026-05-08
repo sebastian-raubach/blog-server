@@ -2,6 +2,7 @@ package blog.raubach.resource;
 
 import blog.raubach.*;
 import blog.raubach.database.Database;
+import blog.raubach.database.codegen.enums.PostsitesGroundtype;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
@@ -12,8 +13,8 @@ import jakarta.ws.rs.core.*;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.io.File;
 import java.io.*;
+import java.io.File;
 import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
@@ -31,6 +32,7 @@ import static blog.raubach.database.codegen.tables.Postsites.POSTSITES;
 import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 import static blog.raubach.database.codegen.tables.Relationships.RELATIONSHIPS;
 import static blog.raubach.database.codegen.tables.Sites.SITES;
+import static blog.raubach.database.codegen.tables.ViewSites.VIEW_SITES;
 
 @Path("post/{postId}")
 @Secured
@@ -40,10 +42,38 @@ public class PostResource extends ContextResource
 	private Integer postId;
 
 	@POST
+	@Path("/site/{siteId:\\d+}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response postSiteWithId(@PathParam("siteId") Integer siteId, PostsitesGroundtype type)
+			throws SQLException
+	{
+		if (type == null || siteId == null)
+			return Response.status(Response.Status.BAD_REQUEST).build();
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			PostsRecord postsRecord = context.selectFrom(POSTS).where(POSTS.ID.eq(postId)).fetchAny();
+			SitesRecord sitesRecord = context.selectFrom(SITES).where(SITES.ID.eq(siteId)).fetchAny();
+
+			if (postsRecord == null || sitesRecord == null)
+				return Response.status(Response.Status.NOT_FOUND).build();
+
+			PostsitesRecord postSites = context.newRecord(POSTSITES);
+			postSites.setSiteId(siteId);
+			postSites.setPostId(postId);
+			postSites.setGroundtype(type);
+			return Response.ok(postSites.store() > 0).build();
+		}
+	}
+
+	@POST
 	@Path("/site")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response postSite(Sites site)
+	public Response postSite(ViewSites site)
 			throws SQLException
 	{
 		if (StringUtils.isEmpty(site.getName()) || site.getSitetype() == null || site.getGroundtype() == null || site.getLatitude() == null || site.getLongitude() == null || site.getRating() == null || site.getFacilities() == null)
@@ -64,6 +94,7 @@ public class PostResource extends ContextResource
 			PostsitesRecord postSites = context.newRecord(POSTSITES);
 			postSites.setSiteId(record.getId());
 			postSites.setPostId(postId);
+			postSites.setGroundtype(site.getGroundtype());
 			return Response.ok(postSites.store() > 0).build();
 		}
 	}
@@ -83,7 +114,7 @@ public class PostResource extends ContextResource
 
 			// Get the posts
 			PostsRecord post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
-									  .fetchAny();
+			                          .fetchAny();
 
 			if (post == null)
 				return Response.status(Response.Status.NOT_FOUND).build();
@@ -123,8 +154,8 @@ public class PostResource extends ContextResource
 
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
-							   .and(condition)
-							   .fetchAnyInto(Hike.class);
+			                   .and(condition)
+			                   .fetchAnyInto(Hike.class);
 
 			if (post == null)
 			{
@@ -151,14 +182,14 @@ public class PostResource extends ContextResource
 			post.setHills(context.select(fields).from(HILLS).leftJoin(POSTHILLS).on(POSTHILLS.HILL_ID.eq(HILLS.ID)).where(POSTHILLS.POST_ID.eq(post.getId())).fetchInto(PostHill.class));
 			post.setStats(context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(post.getId())).fetchAnyInto(Hikestats.class));
 			post.setRatings(context.selectFrom(HIKERATINGS).where(HIKERATINGS.POST_ID.eq(post.getId())).fetchAnyInto(Hikeratings.class));
-			post.setSites(context.select(SITES.fields()).from(SITES).leftJoin(POSTSITES).on(SITES.ID.eq(POSTSITES.SITE_ID)).where(POSTSITES.POST_ID.eq(post.getId())).fetchInto(Sites.class));
+			post.setSites(context.select(VIEW_SITES.fields()).from(POSTSITES).leftJoin(VIEW_SITES).on(VIEW_SITES.ID.eq(POSTSITES.SITE_ID)).and(VIEW_SITES.POST_ID.eq(POSTSITES.POST_ID)).where(POSTSITES.POST_ID.eq(post.getId())).fetchInto(ViewSites.class));
 
 			Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
 			List<PostIndividuals> inds = context.select()
-												.from(POST_INDIVIDUALS)
-												.leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
-												.where(POSTS.ID.eq(post.getId()))
-												.fetchInto(PostIndividuals.class);
+			                                    .from(POST_INDIVIDUALS)
+			                                    .leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
+			                                    .where(POSTS.ID.eq(post.getId()))
+			                                    .fetchInto(PostIndividuals.class);
 
 			post.setPostIndividuals(inds.stream().map(i -> {
 				Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
@@ -200,8 +231,8 @@ public class PostResource extends ContextResource
 
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
-							   .and(condition)
-							   .fetchAnyInto(Hike.class);
+			                   .and(condition)
+			                   .fetchAnyInto(Hike.class);
 
 			if (post == null)
 			{
@@ -210,10 +241,10 @@ public class PostResource extends ContextResource
 			}
 
 			List<Hike> posts = context.selectFrom(POSTS)
-									  .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
-									  .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
-									  .and(condition)
-									  .fetchInto(Hike.class);
+			                          .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
+			                          .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
+			                          .and(condition)
+			                          .fetchInto(Hike.class);
 			posts.forEach(p -> {
 				List<ImageDetails> images = context.selectFrom(IMAGE_DETAILS).where(IMAGE_DETAILS.POST_ID.eq(p.getId())).fetchInto(ImageDetails.class);
 				images.forEach(i -> {
@@ -231,10 +262,10 @@ public class PostResource extends ContextResource
 
 				Map<Integer, IndividualsRecord> individuals = context.selectFrom(INDIVIDUALS).fetchMap(INDIVIDUALS.ID);
 				List<PostIndividuals> inds = context.select()
-													.from(POST_INDIVIDUALS)
-													.leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
-													.where(POSTS.ID.eq(p.getId()))
-													.fetchInto(PostIndividuals.class);
+				                                    .from(POST_INDIVIDUALS)
+				                                    .leftJoin(POSTS).on(POSTS.ID.eq(POST_INDIVIDUALS.POST_ID))
+				                                    .where(POSTS.ID.eq(p.getId()))
+				                                    .fetchInto(PostIndividuals.class);
 
 				p.setPostIndividuals(inds.stream().map(i -> {
 					Individuals match = individuals.get(i.getIndividualId()).into(Individuals.class);
@@ -277,8 +308,8 @@ public class PostResource extends ContextResource
 
 			// Get the posts
 			Hike post = context.selectFrom(POSTS).where(POSTS.ID.eq(postId))
-							   .and(condition)
-							   .fetchAnyInto(Hike.class);
+			                   .and(condition)
+			                   .fetchAnyInto(Hike.class);
 
 			if (post == null)
 			{
@@ -287,9 +318,9 @@ public class PostResource extends ContextResource
 			}
 
 			List<Integer> existingRelatedPostIds = context.select(POSTS.ID).from(POSTS)
-														  .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
-														  .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
-														  .fetchInto(Integer.class);
+			                                              .whereExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_A_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_B_ID.eq(post.getId()))))
+			                                              .orExists(DSL.selectOne().from(RELATIONSHIPS).where(RELATIONSHIPS.POST_B_ID.eq(POSTS.ID).and(RELATIONSHIPS.POST_A_ID.eq(post.getId()))))
+			                                              .fetchInto(Integer.class);
 
 			// Remove all existing
 			postIds.removeAll(existingRelatedPostIds);
@@ -352,10 +383,10 @@ public class PostResource extends ContextResource
 			}
 
 			return Response.ok(gpx)
-						   .type("application/gpx+xml")
-						   .header("content-disposition", "attachment;filename= \"" + gpx.getName() + "\"")
-						   .header("content-length", gpx.length())
-						   .build();
+			               .type("application/gpx+xml")
+			               .header("content-disposition", "attachment;filename= \"" + gpx.getName() + "\"")
+			               .header("content-length", gpx.length())
+			               .build();
 		}
 	}
 
@@ -409,10 +440,10 @@ public class PostResource extends ContextResource
 			}
 
 			return Response.ok(elevation)
-						   .type("text/tab-separated-values")
-						   .header("content-disposition", "attachment;filename= \"" + elevation.getName() + "\"")
-						   .header("content-length", elevation.length())
-						   .build();
+			               .type("text/tab-separated-values")
+			               .header("content-disposition", "attachment;filename= \"" + elevation.getName() + "\"")
+			               .header("content-length", elevation.length())
+			               .build();
 		}
 	}
 
@@ -467,10 +498,10 @@ public class PostResource extends ContextResource
 			}
 
 			return Response.ok(elevation)
-						   .type("text/tab-separated-values")
-						   .header("content-disposition", "attachment;filename= \"" + elevation.getName() + "\"")
-						   .header("content-length", elevation.length())
-						   .build();
+			               .type("text/tab-separated-values")
+			               .header("content-disposition", "attachment;filename= \"" + elevation.getName() + "\"")
+			               .header("content-length", elevation.length())
+			               .build();
 		}
 	}
 }

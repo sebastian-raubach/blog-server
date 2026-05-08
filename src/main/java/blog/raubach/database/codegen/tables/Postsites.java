@@ -5,11 +5,12 @@ package blog.raubach.database.codegen.tables;
 
 
 import blog.raubach.database.codegen.BlogDb;
+import blog.raubach.database.codegen.enums.PostsitesGroundtype;
 import blog.raubach.database.codegen.tables.records.PostsitesRecord;
 
 import org.jooq.Field;
 import org.jooq.Name;
-import org.jooq.Row2;
+import org.jooq.Row3;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -52,6 +53,11 @@ public class Postsites extends TableImpl<PostsitesRecord> {
      * The column <code>blog_db.postsites.site_id</code>.
      */
     public final TableField<PostsitesRecord, Integer> SITE_ID = createField(DSL.name("site_id"), SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>blog_db.postsites.groundtype</code>.
+     */
+    public final TableField<PostsitesRecord, PostsitesGroundtype> GROUNDTYPE = createField(DSL.name("groundtype"), SQLDataType.VARCHAR(6).nullable(false).defaultValue(DSL.inline("grass", SQLDataType.VARCHAR)).asEnumDataType(blog.raubach.database.codegen.enums.PostsitesGroundtype.class), this, "");
 
     private Postsites(Name alias, Table<PostsitesRecord> aliased) {
         this(alias, aliased, null);
@@ -119,12 +125,12 @@ public class Postsites extends TableImpl<PostsitesRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row2 type methods
+    // Row3 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row2<Integer, Integer> fieldsRow() {
-        return (Row2) super.fieldsRow();
+    public Row3<Integer, Integer, PostsitesGroundtype> fieldsRow() {
+        return (Row3) super.fieldsRow();
     }
     // @formatter:on
 }

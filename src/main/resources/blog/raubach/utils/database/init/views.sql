@@ -9,3 +9,5 @@ FROM
     `images`
         LEFT JOIN `postimages` ON `postimages`.`image_id` = `images`.`id`;
 
+DROP VIEW IF EXISTS `view_sites`;
+CREATE ALGORITHM = UNDEFINED SQL SECURITY DEFINER VIEW `view_sites` AS SELECT sites.*, postsites.groundtype, postsites.post_id FROM sites LEFT JOIN postsites ON postsites.site_id = sites.id;

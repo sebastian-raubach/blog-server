@@ -42,6 +42,12 @@
 					<types>.*json.*</types>
 					<userType>blog.raubach.pojo.SiteFacilities</userType>
 				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.SiteGroundTypeBinding</binding>
+					<expression>.*(view_sites)\.(groundtype)</expression>
+					<types>.*enum.*</types>
+					<userType>blog.raubach.database.codegen.enums.PostsitesGroundtype</userType>
+				</forcedType>
 			</forcedTypes>
 		</database>
 
