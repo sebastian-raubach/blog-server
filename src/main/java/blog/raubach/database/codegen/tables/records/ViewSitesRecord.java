@@ -5,7 +5,7 @@ package blog.raubach.database.codegen.tables.records;
 
 
 import blog.raubach.database.codegen.enums.PostsitesGroundtype;
-import blog.raubach.database.codegen.enums.ViewSitesSitetype;
+import blog.raubach.database.codegen.enums.SitesSitetype;
 import blog.raubach.database.codegen.tables.ViewSites;
 import blog.raubach.pojo.SiteFacilities;
 import blog.raubach.pojo.SiteRating;
@@ -23,7 +23,7 @@ import org.jooq.impl.TableRecordImpl;
  * VIEW
  */
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
-public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements Record13<Integer, String, String, ViewSitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype, Integer> {
+public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements Record13<Integer, String, String, SitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype[], Integer[]> {
 
     private static final long serialVersionUID = 1L;
 
@@ -72,15 +72,15 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     /**
      * Setter for <code>blog_db.view_sites.sitetype</code>.
      */
-    public void setSitetype(ViewSitesSitetype value) {
+    public void setSitetype(SitesSitetype value) {
         set(3, value);
     }
 
     /**
      * Getter for <code>blog_db.view_sites.sitetype</code>.
      */
-    public ViewSitesSitetype getSitetype() {
-        return (ViewSitesSitetype) get(3);
+    public SitesSitetype getSitetype() {
+        return (SitesSitetype) get(3);
     }
 
     /**
@@ -182,31 +182,31 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     /**
-     * Setter for <code>blog_db.view_sites.groundtype</code>.
+     * Setter for <code>blog_db.view_sites.groundtypes</code>.
      */
-    public void setGroundtype(PostsitesGroundtype value) {
+    public void setGroundtypes(PostsitesGroundtype[] value) {
         set(11, value);
     }
 
     /**
-     * Getter for <code>blog_db.view_sites.groundtype</code>.
+     * Getter for <code>blog_db.view_sites.groundtypes</code>.
      */
-    public PostsitesGroundtype getGroundtype() {
-        return (PostsitesGroundtype) get(11);
+    public PostsitesGroundtype[] getGroundtypes() {
+        return (PostsitesGroundtype[]) get(11);
     }
 
     /**
-     * Setter for <code>blog_db.view_sites.post_id</code>.
+     * Setter for <code>blog_db.view_sites.post_ids</code>.
      */
-    public void setPostId(Integer value) {
+    public void setPostIds(Integer[] value) {
         set(12, value);
     }
 
     /**
-     * Getter for <code>blog_db.view_sites.post_id</code>.
+     * Getter for <code>blog_db.view_sites.post_ids</code>.
      */
-    public Integer getPostId() {
-        return (Integer) get(12);
+    public Integer[] getPostIds() {
+        return (Integer[]) get(12);
     }
 
     // -------------------------------------------------------------------------
@@ -214,12 +214,12 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     // -------------------------------------------------------------------------
 
     @Override
-    public Row13<Integer, String, String, ViewSitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype, Integer> fieldsRow() {
+    public Row13<Integer, String, String, SitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype[], Integer[]> fieldsRow() {
         return (Row13) super.fieldsRow();
     }
 
     @Override
-    public Row13<Integer, String, String, ViewSitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype, Integer> valuesRow() {
+    public Row13<Integer, String, String, SitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype[], Integer[]> valuesRow() {
         return (Row13) super.valuesRow();
     }
 
@@ -239,7 +239,7 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public Field<ViewSitesSitetype> field4() {
+    public Field<SitesSitetype> field4() {
         return ViewSites.VIEW_SITES.SITETYPE;
     }
 
@@ -279,13 +279,13 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public Field<PostsitesGroundtype> field12() {
-        return ViewSites.VIEW_SITES.GROUNDTYPE;
+    public Field<PostsitesGroundtype[]> field12() {
+        return ViewSites.VIEW_SITES.GROUNDTYPES;
     }
 
     @Override
-    public Field<Integer> field13() {
-        return ViewSites.VIEW_SITES.POST_ID;
+    public Field<Integer[]> field13() {
+        return ViewSites.VIEW_SITES.POST_IDS;
     }
 
     @Override
@@ -304,7 +304,7 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public ViewSitesSitetype component4() {
+    public SitesSitetype component4() {
         return getSitetype();
     }
 
@@ -344,13 +344,13 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public PostsitesGroundtype component12() {
-        return getGroundtype();
+    public PostsitesGroundtype[] component12() {
+        return getGroundtypes();
     }
 
     @Override
-    public Integer component13() {
-        return getPostId();
+    public Integer[] component13() {
+        return getPostIds();
     }
 
     @Override
@@ -369,7 +369,7 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public ViewSitesSitetype value4() {
+    public SitesSitetype value4() {
         return getSitetype();
     }
 
@@ -409,13 +409,13 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public PostsitesGroundtype value12() {
-        return getGroundtype();
+    public PostsitesGroundtype[] value12() {
+        return getGroundtypes();
     }
 
     @Override
-    public Integer value13() {
-        return getPostId();
+    public Integer[] value13() {
+        return getPostIds();
     }
 
     @Override
@@ -437,7 +437,7 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public ViewSitesRecord value4(ViewSitesSitetype value) {
+    public ViewSitesRecord value4(SitesSitetype value) {
         setSitetype(value);
         return this;
     }
@@ -485,19 +485,19 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     }
 
     @Override
-    public ViewSitesRecord value12(PostsitesGroundtype value) {
-        setGroundtype(value);
+    public ViewSitesRecord value12(PostsitesGroundtype[] value) {
+        setGroundtypes(value);
         return this;
     }
 
     @Override
-    public ViewSitesRecord value13(Integer value) {
-        setPostId(value);
+    public ViewSitesRecord value13(Integer[] value) {
+        setPostIds(value);
         return this;
     }
 
     @Override
-    public ViewSitesRecord values(Integer value1, String value2, String value3, ViewSitesSitetype value4, Double value5, Double value6, Double value7, SiteRating value8, SiteFacilities value9, Timestamp value10, Timestamp value11, PostsitesGroundtype value12, Integer value13) {
+    public ViewSitesRecord values(Integer value1, String value2, String value3, SitesSitetype value4, Double value5, Double value6, Double value7, SiteRating value8, SiteFacilities value9, Timestamp value10, Timestamp value11, PostsitesGroundtype[] value12, Integer[] value13) {
         value1(value1);
         value2(value2);
         value3(value3);
@@ -528,7 +528,7 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
     /**
      * Create a detached, initialised ViewSitesRecord
      */
-    public ViewSitesRecord(Integer id, String name, String description, ViewSitesSitetype sitetype, Double latitude, Double longitude, Double elevation, SiteRating rating, SiteFacilities facilities, Timestamp createdOn, Timestamp updatedOn, PostsitesGroundtype groundtype, Integer postId) {
+    public ViewSitesRecord(Integer id, String name, String description, SitesSitetype sitetype, Double latitude, Double longitude, Double elevation, SiteRating rating, SiteFacilities facilities, Timestamp createdOn, Timestamp updatedOn, PostsitesGroundtype[] groundtypes, Integer[] postIds) {
         super(ViewSites.VIEW_SITES);
 
         setId(id);
@@ -542,8 +542,8 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
         setFacilities(facilities);
         setCreatedOn(createdOn);
         setUpdatedOn(updatedOn);
-        setGroundtype(groundtype);
-        setPostId(postId);
+        setGroundtypes(groundtypes);
+        setPostIds(postIds);
     }
 
     /**
@@ -564,8 +564,8 @@ public class ViewSitesRecord extends TableRecordImpl<ViewSitesRecord> implements
             setFacilities(value.getFacilities());
             setCreatedOn(value.getCreatedOn());
             setUpdatedOn(value.getUpdatedOn());
-            setGroundtype(value.getGroundtype());
-            setPostId(value.getPostId());
+            setGroundtypes(value.getGroundtypes());
+            setPostIds(value.getPostIds());
         }
     }
     // @formatter:on

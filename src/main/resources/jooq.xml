@@ -31,6 +31,43 @@
 					<types>.*tinyint.*</types>
 				</forcedType>
 				<forcedType>
+					<userType>blog.raubach.database.codegen.enums.SitesSitetype</userType>
+					<enumConverter>true</enumConverter>
+					<includeTypes>.*</includeTypes>
+					<includeExpression>(?i:view_sites\.sitetype)</includeExpression>
+				</forcedType>
+<!--				<forcedType>-->
+<!--					<userType>blog.raubach.database.codegen.enums.PostsitesGroundtype[]</userType>-->
+<!--					<includeTypes>.*</includeTypes>-->
+<!--					<includeExpression>(?i:view_sites\.groundtypes)</includeExpression>-->
+<!--					&lt;!&ndash; Automatically creates a JSONJacksonConverter for the userType &ndash;&gt;-->
+<!--					<jsonConverter>true</jsonConverter>-->
+<!--				</forcedType>-->
+				<forcedType>
+					<userType>blog.raubach.database.codegen.enums.PostsType</userType>
+					<enumConverter>true</enumConverter>
+					<includeTypes>.*</includeTypes>
+					<includeExpression>(?i:view_posts\.post_type)</includeExpression>
+				</forcedType>
+				<forcedType>
+					<userType>blog.raubach.database.codegen.enums.HillsType</userType>
+					<enumConverter>true</enumConverter>
+					<includeTypes>.*</includeTypes>
+					<includeExpression>(?i:view_hills\.hill_type)</includeExpression>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.IntArrayBinding</binding>
+					<expression>.*(view_).*\..*(_ids).*</expression>
+					<types>.*json.*</types>
+					<userType>Integer[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.GrountypeArrayBinding</binding>
+					<expression>.*(view_sites).*\..*(groundtypes).*</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.database.codegen.enums.PostsitesGroundtype[]</userType>
+				</forcedType>
+				<forcedType>
 					<binding>blog.raubach.database.binding.SiteRatingBinding</binding>
 					<expression>.*(sites)\.(rating)</expression>
 					<types>.*json.*</types>
@@ -47,6 +84,54 @@
 					<expression>.*(view_sites)\.(groundtype)</expression>
 					<types>.*enum.*</types>
 					<userType>blog.raubach.database.codegen.enums.PostsitesGroundtype</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.PostImageArrayBinding</binding>
+					<expression>.*(view_posts)\.(images)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.PostImage[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.PostHillArrayBinding</binding>
+					<expression>.*(view_posts)\.(hills)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.PostHill[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.PostSiteArrayBinding</binding>
+					<expression>.*(view_posts)\.(sites)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.PostSite[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.PostPersonArrayBinding</binding>
+					<expression>.*(view_posts|view_hills)\.(people)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.PostPerson[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.MiniPostArrayBinding</binding>
+					<expression>.*(view_hills|view_stories)\.(posts)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.MiniPost[]</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.HikeStatsBinding</binding>
+					<expression>.*(view_posts)\.(hikeStats)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.HikeStats</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.HikeRatingBinding</binding>
+					<expression>.*(view_posts)\.(hikeRating)</expression>
+					<types>.*json.*</types>
+					<userType>blog.raubach.pojo.view.HikeRating</userType>
+				</forcedType>
+				<forcedType>
+					<binding>blog.raubach.database.binding.StringArrayBinding</binding>
+					<expression>.*(view_posts).*\.*(videos).*</expression>
+					<types>.*json.*</types>
+					<userType>String[]</userType>
 				</forcedType>
 			</forcedTypes>
 		</database>

@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static blog.raubach.database.codegen.tables.Hikestats.*;
+import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
 
 public class GoogleElevationTask implements Runnable
 {
@@ -33,6 +33,34 @@ public class GoogleElevationTask implements Runnable
 		this.postId = postId;
 	}
 
+	public static void main(String[] args)
+	{
+		Database.init("localhost", "blog", null, "root", null);
+
+		new GoogleElevationTask(304).run();
+	}
+
+	public static ElevationResult[] fetchElevationsInBatches(GeoApiContext gContext, LatLng[] latLngs)
+			throws IOException, InterruptedException, ApiException
+	{
+		int batchSize = 500; // Keep slightly under the 512 limit
+		List<ElevationResult> allResults = new ArrayList<>();
+
+		for (int i = 0; i < latLngs.length; i += batchSize)
+		{
+			int end = Math.min(i + batchSize, latLngs.length);
+			LatLng[] batch = Arrays.copyOfRange(latLngs, i, end);
+
+			ElevationResult[] batchResults = ElevationApi.getByPoints(gContext, batch).await();
+			if (batchResults != null)
+			{
+				allResults.addAll(Arrays.asList(batchResults));
+			}
+		}
+
+		return allResults.toArray(new ElevationResult[0]);
+	}
+
 	@Override
 	public void run()
 	{
@@ -41,16 +69,16 @@ public class GoogleElevationTask implements Runnable
 		Logger.getLogger("").info("RUNNING GOOGLE ELEVATION TASK");
 
 		GeoApiContext gContext = new GeoApiContext.Builder()
-			.apiKey(PropertyWatcher.get("google.elevation.api.key"))
-			.build();
+				.apiKey(PropertyWatcher.get("google.elevation.api.key"))
+				.build();
 
 		try (Connection conn = Database.getConnection(true))
 		{
 			DSLContext context = Database.getContext(conn);
 
 			SelectConditionStep<HikestatsRecord> step = context.selectFrom(HIKESTATS)
-															   .where(HIKESTATS.GPX_PATH.isNotNull())
-															   .and(HIKESTATS.ELEVATION_PROFILE_PATH.isNull().or(HIKESTATS.TIME_DISTANCE_PROFILE_PATH.isNull()));
+			                                                   .where(HIKESTATS.GPX_PATH.isNotNull())
+			                                                   .and(HIKESTATS.ELEVATION_PROFILE_PATH.isNull().or(HIKESTATS.TIME_DISTANCE_PROFILE_PATH.isNull()));
 
 			if (this.postId != null)
 				step = step.and(HIKESTATS.POST_ID.eq(postId));
@@ -68,27 +96,52 @@ public class GoogleElevationTask implements Runnable
 
 						// Extract all the points
 						List<Point> points = new ArrayList<>();
-						if (data.getTracks().size() > 0)
+						if (!data.getTracks().isEmpty())
 						{
 							points = data.tracks()
-										 .flatMap(Track::segments)
-										 .flatMap(TrackSegment::points)
-										 .collect(Collectors.toList());
+							             .flatMap(Track::segments)
+							             .flatMap(TrackSegment::points)
+							             .collect(Collectors.toList());
 						}
-						else if (data.getRoutes().size() > 0)
+						else if (!data.getRoutes().isEmpty())
 						{
 							points = data.routes()
-										 .flatMap(Route::points)
-										 .collect(Collectors.toList());
+							             .flatMap(Route::points)
+							             .collect(Collectors.toList());
 						}
 
 						if (!CollectionUtils.isEmpty(points))
 						{
-							// Map them to Google Maps LatLng objects
-							LatLng[] latLngs = points.stream().map(p -> new LatLng(p.getLatitude().doubleValue(), p.getLongitude().doubleValue())).toArray(LatLng[]::new);
+							boolean hasElevation = true;
 
-							// Fetch their elevations
-							ElevationResult[] result = ElevationApi.getByPoints(gContext, latLngs).await();
+							for (Point point : points)
+							{
+								if (point.getElevation().isEmpty())
+								{
+									hasElevation = false;
+									break;
+								}
+							}
+
+							ElevationResult[] result;
+
+							if (!hasElevation)
+							{
+								// Map them to Google Maps LatLng objects
+								LatLng[] latLngs = points.stream().map(p -> new LatLng(p.getLatitude().doubleValue(), p.getLongitude().doubleValue())).toArray(LatLng[]::new);
+
+								// Fetch their elevations
+								result = fetchElevationsInBatches(gContext, latLngs);
+							}
+							else
+							{
+								result = points.stream().map(p -> {
+									ElevationResult er = new ElevationResult();
+									er.location = new LatLng(p.getLatitude().doubleValue(), p.getLongitude().doubleValue());
+									er.elevation = p.getElevation().get().doubleValue();
+									return er;
+								}).toArray(ElevationResult[]::new);
+							}
 
 							String uuid = gpx.getParentFile().getName();
 
@@ -97,7 +150,7 @@ public class GoogleElevationTask implements Runnable
 							File elevation = new File(gpx.getParentFile(), uuid + "-elevation.tsv");
 							File timeDistance = new File(gpx.getParentFile(), uuid + "-time-distance.tsv");
 							try (BufferedWriter ew = new BufferedWriter(new FileWriter(elevation, StandardCharsets.UTF_8));
-								 BufferedWriter tdw = new BufferedWriter(new FileWriter(timeDistance, StandardCharsets.UTF_8)))
+							     BufferedWriter tdw = new BufferedWriter(new FileWriter(timeDistance, StandardCharsets.UTF_8)))
 							{
 								ew.write("distance\televation");
 								ew.newLine();

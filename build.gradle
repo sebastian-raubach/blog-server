@@ -13,6 +13,7 @@ buildscript {
 plugins {
     id 'java'
     id 'war'
+    id('cz.habarta.typescript-generator') version '3.2.1263'
 }
 
 apply plugin: 'com.bmuschko.cargo-base'
@@ -58,6 +59,9 @@ dependencies {
     implementation 'net.coobird:thumbnailator:0.4.17'
     implementation 'io.jenetics:jpx:2.2.0'
     implementation 'com.google.maps:google-maps-services:0.19.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.30'
+    annotationProcessor 'org.projectlombok:lombok:1.18.30'
 }
 
 // Runs the JOOQ code generation
@@ -67,6 +71,18 @@ task codegen (type: JavaExec) {
     main = 'org.jooq.codegen.GenerationTool'
     args 'jooq.xml'
     finalizedBy build
+}
+
+generateTypeScript {
+    jsonLibrary = 'jackson2'
+    classPatterns = ['blog.raubach.database.codegen.tables.pojos.*', 'blog.raubach.pojo.*']
+    outputKind = 'module'
+    outputFile = 'blog.ts'
+    outputFileType = 'implementationFile'
+//    generateConstructors = true
+//    mapClasses = 'asClasses'
+    mapEnum = 'asEnum'
+    stringQuotes = 'singleQuotes'
 }
 
 // Generate a .war file

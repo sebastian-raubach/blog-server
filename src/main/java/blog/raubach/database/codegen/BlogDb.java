@@ -23,7 +23,10 @@ import blog.raubach.database.codegen.tables.Sites;
 import blog.raubach.database.codegen.tables.Stories;
 import blog.raubach.database.codegen.tables.Storyposts;
 import blog.raubach.database.codegen.tables.Users;
+import blog.raubach.database.codegen.tables.ViewHills;
+import blog.raubach.database.codegen.tables.ViewPosts;
 import blog.raubach.database.codegen.tables.ViewSites;
+import blog.raubach.database.codegen.tables.ViewStories;
 
 import java.util.Arrays;
 import java.util.List;
@@ -82,7 +85,10 @@ public class BlogDb extends SchemaImpl {
             Stories.STORIES,
             Storyposts.STORYPOSTS,
             Users.USERS,
-            ViewSites.VIEW_SITES
+            ViewHills.VIEW_HILLS,
+            ViewPosts.VIEW_POSTS,
+            ViewSites.VIEW_SITES,
+            ViewStories.VIEW_STORIES
         );
     }
     // @formatter:on

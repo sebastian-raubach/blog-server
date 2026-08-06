@@ -6,6 +6,7 @@ import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
 import blog.raubach.database.codegen.tables.records.*;
 import blog.raubach.pojo.*;
+import blog.raubach.pojo.view.PostHill;
 import blog.raubach.utils.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
@@ -26,42 +27,87 @@ import static blog.raubach.database.codegen.tables.Postvideos.POSTVIDEOS;
 
 @Path("import/post")
 @Secured
-public class PostImportPutResource extends ContextResource
+public class PostImportResource extends ContextResource
 {
-	@PUT
+	@PATCH
+	@Path("/{postId:\\d+}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Integer putPostImport(PostImport hi)
+	public Response patchPostImport(@PathParam("postId") Integer postId, PostImport hi)
 			throws IOException, SQLException
 	{
-		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
-		{
-			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set");
-			return null;
-		}
-
-		boolean hillsValid = isHillsValid(hi.getHills());
-		boolean ratingValid = isRatingValid(hi.getRating());
-		boolean statsValid = isStatsValid(hi.getStats());
-
-		if (hi.getType() == PostsType.hike && (!hillsValid || !ratingValid || !statsValid))
-		{
-			resp.sendError(Response.Status.BAD_REQUEST.getStatusCode(), "Hike provided, but either hills, rating or stats invalid");
-			return null;
-		}
+		if (hi == null || postId == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
+			return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set").build();
 
 		try (Connection conn = Database.getConnection())
 		{
 			DSLContext context = Database.getContext(conn);
 
 			PostsRecord post = context.selectFrom(POSTS)
-									  .where(POSTS.TITLE.eq(hi.getTitle()))
-									  .and(POSTS.CONTENT.isNotDistinctFrom(hi.getContent()))
-									  .and(POSTS.CONTENT_MARKDOWN.isNotDistinctFrom(hi.getContentMarkdown()))
-									  .and(POSTS.END_DATE.isNotDistinctFrom(hi.getEndDate()))
-									  .and(POSTS.CREATED_ON.eq(hi.getCreatedOn()))
-									  .and(POSTS.TYPE.eq(hi.getType()))
-									  .fetchAny();
+			                          .where(POSTS.ID.eq(postId))
+			                          .fetchAny();
+
+			if (post == null)
+				return Response.status(Response.Status.NOT_FOUND).build();
+
+			post.setTitle(hi.getTitle());
+			post.setContent(hi.getContent());
+			post.setContentMarkdown(hi.getContentMarkdown());
+			post.setVisible(hi.getVisible());
+			post.store();
+
+			if (!CollectionUtils.isEmpty(hi.getVideos()))
+			{
+				List<String> exist = context.select(POSTVIDEOS.VIDEO_PATH)
+				                            .from(POSTVIDEOS)
+				                            .where(POSTVIDEOS.POST_ID.eq(postId))
+				                            .and(POSTVIDEOS.VIDEO_PATH.in(hi.getVideos()))
+				                            .fetchInto(String.class);
+
+				List<String> newVideos = new ArrayList<>(Arrays.asList(hi.getVideos()));
+				newVideos.removeAll(exist);
+
+				for (String newVideo : newVideos)
+				{
+					context.insertInto(POSTVIDEOS)
+					       .set(POSTVIDEOS.POST_ID, post.getId())
+					       .set(POSTVIDEOS.VIDEO_PATH, newVideo)
+					       .execute();
+				}
+			}
+
+			return Response.ok(post.getId()).build();
+		}
+	}
+
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response putPostImport(PostImport hi)
+			throws IOException, SQLException
+	{
+		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
+			return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set").build();
+
+		boolean hillsValid = isHillsValid(hi.getHills());
+		boolean ratingValid = isRatingValid(hi.getRating());
+		boolean statsValid = isStatsValid(hi.getStats());
+
+		if (hi.getType() == PostsType.hike && (!hillsValid || !ratingValid || !statsValid))
+			return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Hike provided, but either hills, rating or stats invalid").build();
+
+		try (Connection conn = Database.getConnection())
+		{
+			DSLContext context = Database.getContext(conn);
+
+			PostsRecord post = context.selectFrom(POSTS)
+			                          .where(POSTS.TITLE.eq(hi.getTitle()))
+			                          .and(POSTS.CONTENT.isNotDistinctFrom(hi.getContent()))
+			                          .and(POSTS.CONTENT_MARKDOWN.isNotDistinctFrom(hi.getContentMarkdown()))
+			                          .and(POSTS.END_DATE.isNotDistinctFrom(hi.getEndDate()))
+			                          .and(POSTS.CREATED_ON.eq(hi.getCreatedOn()))
+			                          .and(POSTS.TYPE.eq(hi.getType()))
+			                          .fetchAny();
 
 			if (post == null)
 			{
@@ -118,21 +164,19 @@ public class PostImportPutResource extends ContextResource
 				{
 					HillsRecord h;
 
-					if (hill.getId() != null)
+					if (hill.getHillId() != null && hill.getHillId() > 0)
 					{
-						h = context.selectFrom(HILLS).where(HILLS.ID.eq(hill.getId())).fetchAny();
+						h = context.selectFrom(HILLS).where(HILLS.ID.eq(hill.getHillId())).fetchAny();
 					}
 					else
 					{
 						// Check if it exists
 						h = context.selectFrom(HILLS)
-								   .where(HILLS.NAME.eq(hill.getName()))
-								   .and(HILLS.LATITUDE.isNotDistinctFrom(hill.getLatitude()))
-								   .and(HILLS.LONGITUDE.isNotDistinctFrom(hill.getLongitude()))
-								   .and(HILLS.ELEVATION.isNotDistinctFrom(hill.getElevation()))
-								   .and(HILLS.REGION.isNotDistinctFrom(hill.getRegion()))
-								   .and(HILLS.URL.isNotDistinctFrom(hill.getUrl()))
-								   .fetchAny();
+						           .where(HILLS.NAME.eq(hill.getHillName()))
+						           .and(HILLS.LATITUDE.isNotDistinctFrom(hill.getHillLatitude()))
+						           .and(HILLS.LONGITUDE.isNotDistinctFrom(hill.getHillLongitude()))
+						           .and(HILLS.ELEVATION.isNotDistinctFrom(hill.getHillElevation()))
+						           .fetchAny();
 					}
 
 					if (h == null)
@@ -152,7 +196,7 @@ public class PostImportPutResource extends ContextResource
 						ph = context.newRecord(POSTHILLS);
 						ph.setPostId(post.getId());
 						ph.setHillId(h.getId());
-						ph.setSuccessful(hill.isSuccessful());
+						ph.setSuccessful(hill.getHillSuccessful() == 1);
 						ph.store();
 					}
 				}
@@ -163,9 +207,9 @@ public class PostImportPutResource extends ContextResource
 				for (String video : hi.getVideos())
 				{
 					context.insertInto(POSTVIDEOS)
-						   .set(POSTVIDEOS.POST_ID, post.getId())
-						   .set(POSTVIDEOS.VIDEO_PATH, video)
-						   .execute();
+					       .set(POSTVIDEOS.POST_ID, post.getId())
+					       .set(POSTVIDEOS.VIDEO_PATH, video)
+					       .execute();
 				}
 			}
 
@@ -180,13 +224,13 @@ public class PostImportPutResource extends ContextResource
 				for (Integer r : requested)
 				{
 					context.insertInto(POST_INDIVIDUALS)
-							.set(POST_INDIVIDUALS.POST_ID, post.getId())
-							.set(POST_INDIVIDUALS.INDIVIDUAL_ID, r)
-							.execute();
+					       .set(POST_INDIVIDUALS.POST_ID, post.getId())
+					       .set(POST_INDIVIDUALS.INDIVIDUAL_ID, r)
+					       .execute();
 				}
 			}
 
-			return post.getId();
+			return Response.ok(post.getId()).build();
 		}
 	}
 
@@ -207,7 +251,7 @@ public class PostImportPutResource extends ContextResource
 
 		for (PostHill hill : hills)
 		{
-			if (hill == null || StringUtils.isEmpty(hill.getName()) || hill.getType() == null)
+			if (hill == null || StringUtils.isEmpty(hill.getHillName()) || hill.getHillType() == null)
 				return false;
 		}
 

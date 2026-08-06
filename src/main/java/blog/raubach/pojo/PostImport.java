@@ -2,6 +2,7 @@ package blog.raubach.pojo;
 
 import blog.raubach.database.codegen.enums.PostsType;
 import blog.raubach.database.codegen.tables.pojos.*;
+import blog.raubach.pojo.view.PostHill;
 
 import java.sql.Timestamp;
 
@@ -17,8 +18,8 @@ public class PostImport
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
-	private PostHill[]  hills;
-	private String[]    videos;
+	private PostHill[] hills;
+	private String[]   videos;
 	private Hikestats   stats;
 	private Hikeratings rating;
 

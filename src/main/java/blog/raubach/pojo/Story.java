@@ -6,14 +6,14 @@ import java.util.List;
 
 public class Story extends Stories
 {
-	private List<Hike> posts;
+	private List<MiniPost> posts;
 
-	public List<Hike> getPosts()
+	public List<MiniPost> getPosts()
 	{
 		return posts;
 	}
 
-	public Story setPosts(List<Hike> posts)
+	public Story setPosts(List<MiniPost> posts)
 	{
 		this.posts = posts;
 		return this;

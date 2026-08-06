@@ -33,14 +33,16 @@ public class PostYearsResource extends ContextResource
 			DSLContext context = Database.getContext(conn);
 
 			Field<?> year = DSL.year(POSTS.CREATED_ON).as("year");
-			SelectConditionStep<?> step = context.select(year, DSL.count().as("count"))
-												.from(POSTS)
-												.where(POSTS.TYPE.eq(postType));
+			SelectJoinStep<?> step = context.select(year, DSL.count().as("count"))
+			                                                            .from(POSTS);
+
+			if (postType != null)
+				step.where(POSTS.TYPE.eq(postType));
 
 			AuthenticationFilter.UserDetails userDetails = (AuthenticationFilter.UserDetails) securityContext.getUserPrincipal();
 			Logger.getLogger("").info("AUTH: " + userDetails);
 			if (StringUtils.isEmpty(userDetails.getToken()))
-				step.and(POSTS.VISIBLE.eq(true));
+				step.where(POSTS.VISIBLE.eq(true));
 
 			return step.groupBy(year)
 					   .orderBy(year.desc())

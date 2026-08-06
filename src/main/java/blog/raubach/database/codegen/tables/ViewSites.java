@@ -4,12 +4,13 @@
 package blog.raubach.database.codegen.tables;
 
 
+import blog.raubach.database.binding.GrountypeArrayBinding;
+import blog.raubach.database.binding.IntArrayBinding;
 import blog.raubach.database.binding.SiteFacilitiesBinding;
-import blog.raubach.database.binding.SiteGroundTypeBinding;
 import blog.raubach.database.binding.SiteRatingBinding;
 import blog.raubach.database.codegen.BlogDb;
 import blog.raubach.database.codegen.enums.PostsitesGroundtype;
-import blog.raubach.database.codegen.enums.ViewSitesSitetype;
+import blog.raubach.database.codegen.enums.SitesSitetype;
 import blog.raubach.database.codegen.tables.records.ViewSitesRecord;
 import blog.raubach.pojo.SiteFacilities;
 import blog.raubach.pojo.SiteRating;
@@ -24,6 +25,7 @@ import org.jooq.Table;
 import org.jooq.TableField;
 import org.jooq.TableOptions;
 import org.jooq.impl.DSL;
+import org.jooq.impl.EnumConverter;
 import org.jooq.impl.SQLDataType;
 import org.jooq.impl.TableImpl;
 
@@ -68,7 +70,7 @@ public class ViewSites extends TableImpl<ViewSitesRecord> {
     /**
      * The column <code>blog_db.view_sites.sitetype</code>.
      */
-    public final TableField<ViewSitesRecord, ViewSitesSitetype> SITETYPE = createField(DSL.name("sitetype"), SQLDataType.VARCHAR(8).nullable(false).defaultValue(DSL.inline("campsite", SQLDataType.VARCHAR)).asEnumDataType(blog.raubach.database.codegen.enums.ViewSitesSitetype.class), this, "");
+    public final TableField<ViewSitesRecord, SitesSitetype> SITETYPE = createField(DSL.name("sitetype"), SQLDataType.VARCHAR(8).nullable(false).defaultValue(DSL.inline("campsite", SQLDataType.VARCHAR)), this, "", new EnumConverter<String, SitesSitetype>(String.class, SitesSitetype.class));
 
     /**
      * The column <code>blog_db.view_sites.latitude</code>.
@@ -106,22 +108,21 @@ public class ViewSites extends TableImpl<ViewSitesRecord> {
     public final TableField<ViewSitesRecord, Timestamp> UPDATED_ON = createField(DSL.name("updated_on"), SQLDataType.TIMESTAMP(0).nullable(false).defaultValue(DSL.field("CURRENT_TIMESTAMP", SQLDataType.TIMESTAMP)), this, "");
 
     /**
-     * The column <code>blog_db.view_sites.groundtype</code>.
+     * The column <code>blog_db.view_sites.groundtypes</code>.
      */
-//    public final TableField<ViewSitesRecord, PostsitesGroundtype> GROUNDTYPE = createField(DSL.name("groundtype"), SQLDataType.VARCHAR(6).defaultValue(DSL.inline("grass", SQLDataType.VARCHAR)), this, "", new SiteGroundTypeBinding());
-    public final TableField<ViewSitesRecord, PostsitesGroundtype> GROUNDTYPE = createField(DSL.name("groundtype"), SQLDataType.VARCHAR(6).nullable(false).defaultValue(DSL.inline("grass", SQLDataType.VARCHAR)).asEnumDataType(blog.raubach.database.codegen.enums.PostsitesGroundtype.class), this, "");
+    public final TableField<ViewSitesRecord, PostsitesGroundtype[]> GROUNDTYPES = createField(DSL.name("groundtypes"), SQLDataType.JSON, this, "", new GrountypeArrayBinding());
 
     /**
-     * The column <code>blog_db.view_sites.post_id</code>.
+     * The column <code>blog_db.view_sites.post_ids</code>.
      */
-    public final TableField<ViewSitesRecord, Integer> POST_ID = createField(DSL.name("post_id"), SQLDataType.INTEGER, this, "");
+    public final TableField<ViewSitesRecord, Integer[]> POST_IDS = createField(DSL.name("post_ids"), SQLDataType.JSON, this, "", new IntArrayBinding());
 
     private ViewSites(Name alias, Table<ViewSitesRecord> aliased) {
         this(alias, aliased, null);
     }
 
     private ViewSites(Name alias, Table<ViewSitesRecord> aliased, Field<?>[] parameters) {
-        super(alias, null, aliased, parameters, DSL.comment("VIEW"), TableOptions.view("create view `view_sites` as select `blog`.`sites`.`id` AS `id`,`blog`.`sites`.`name` AS `name`,`blog`.`sites`.`description` AS `description`,`blog`.`sites`.`sitetype` AS `sitetype`,`blog`.`sites`.`latitude` AS `latitude`,`blog`.`sites`.`longitude` AS `longitude`,`blog`.`sites`.`elevation` AS `elevation`,`blog`.`sites`.`rating` AS `rating`,`blog`.`sites`.`facilities` AS `facilities`,`blog`.`sites`.`created_on` AS `created_on`,`blog`.`sites`.`updated_on` AS `updated_on`,`blog`.`postsites`.`groundtype` AS `groundtype`,`blog`.`postsites`.`post_id` AS `post_id` from (`blog`.`sites` left join `blog`.`postsites` on((`blog`.`postsites`.`site_id` = `blog`.`sites`.`id`)))"));
+        super(alias, null, aliased, parameters, DSL.comment("VIEW"), TableOptions.view("create view `view_sites` as select `blog`.`sites`.`id` AS `id`,`blog`.`sites`.`name` AS `name`,`blog`.`sites`.`description` AS `description`,`blog`.`sites`.`sitetype` AS `sitetype`,`blog`.`sites`.`latitude` AS `latitude`,`blog`.`sites`.`longitude` AS `longitude`,`blog`.`sites`.`elevation` AS `elevation`,`blog`.`sites`.`rating` AS `rating`,`blog`.`sites`.`facilities` AS `facilities`,`blog`.`sites`.`created_on` AS `created_on`,`blog`.`sites`.`updated_on` AS `updated_on`,json_arrayagg(`blog`.`postsites`.`groundtype`) AS `groundtypes`,json_arrayagg(`blog`.`postsites`.`post_id`) AS `post_ids` from (`blog`.`sites` left join `blog`.`postsites` on((`blog`.`postsites`.`site_id` = `blog`.`sites`.`id`))) group by `blog`.`sites`.`id`"));
     }
 
     /**
@@ -181,7 +182,7 @@ public class ViewSites extends TableImpl<ViewSitesRecord> {
     // -------------------------------------------------------------------------
 
     @Override
-    public Row13<Integer, String, String, ViewSitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype, Integer> fieldsRow() {
+    public Row13<Integer, String, String, SitesSitetype, Double, Double, Double, SiteRating, SiteFacilities, Timestamp, Timestamp, PostsitesGroundtype[], Integer[]> fieldsRow() {
         return (Row13) super.fieldsRow();
     }
     // @formatter:on

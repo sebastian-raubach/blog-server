@@ -5,12 +5,13 @@ package blog.raubach.database.codegen.tables.pojos;
 
 
 import blog.raubach.database.codegen.enums.PostsitesGroundtype;
-import blog.raubach.database.codegen.enums.ViewSitesSitetype;
+import blog.raubach.database.codegen.enums.SitesSitetype;
 import blog.raubach.pojo.SiteFacilities;
 import blog.raubach.pojo.SiteRating;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Arrays;
 
 
 // @formatter:off
@@ -22,19 +23,19 @@ public class ViewSites implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Integer             id;
-    private String              name;
-    private String              description;
-    private ViewSitesSitetype   sitetype;
-    private Double              latitude;
-    private Double              longitude;
-    private Double              elevation;
-    private SiteRating          rating;
-    private SiteFacilities      facilities;
-    private Timestamp           createdOn;
-    private Timestamp           updatedOn;
-    private PostsitesGroundtype groundtype;
-    private Integer             postId;
+    private Integer               id;
+    private String                name;
+    private String                description;
+    private SitesSitetype         sitetype;
+    private Double                latitude;
+    private Double                longitude;
+    private Double                elevation;
+    private SiteRating            rating;
+    private SiteFacilities        facilities;
+    private Timestamp             createdOn;
+    private Timestamp             updatedOn;
+    private PostsitesGroundtype[] groundtypes;
+    private Integer[]             postIds;
 
     public ViewSites() {}
 
@@ -50,24 +51,24 @@ public class ViewSites implements Serializable {
         this.facilities = value.facilities;
         this.createdOn = value.createdOn;
         this.updatedOn = value.updatedOn;
-        this.groundtype = value.groundtype;
-        this.postId = value.postId;
+        this.groundtypes = value.groundtypes;
+        this.postIds = value.postIds;
     }
 
     public ViewSites(
-        Integer             id,
-        String              name,
-        String              description,
-        ViewSitesSitetype   sitetype,
-        Double              latitude,
-        Double              longitude,
-        Double              elevation,
-        SiteRating          rating,
-        SiteFacilities      facilities,
-        Timestamp           createdOn,
-        Timestamp           updatedOn,
-        PostsitesGroundtype groundtype,
-        Integer             postId
+        Integer               id,
+        String                name,
+        String                description,
+        SitesSitetype         sitetype,
+        Double                latitude,
+        Double                longitude,
+        Double                elevation,
+        SiteRating            rating,
+        SiteFacilities        facilities,
+        Timestamp             createdOn,
+        Timestamp             updatedOn,
+        PostsitesGroundtype[] groundtypes,
+        Integer[]             postIds
     ) {
         this.id = id;
         this.name = name;
@@ -80,8 +81,8 @@ public class ViewSites implements Serializable {
         this.facilities = facilities;
         this.createdOn = createdOn;
         this.updatedOn = updatedOn;
-        this.groundtype = groundtype;
-        this.postId = postId;
+        this.groundtypes = groundtypes;
+        this.postIds = postIds;
     }
 
     /**
@@ -129,14 +130,14 @@ public class ViewSites implements Serializable {
     /**
      * Getter for <code>blog_db.view_sites.sitetype</code>.
      */
-    public ViewSitesSitetype getSitetype() {
+    public SitesSitetype getSitetype() {
         return this.sitetype;
     }
 
     /**
      * Setter for <code>blog_db.view_sites.sitetype</code>.
      */
-    public void setSitetype(ViewSitesSitetype sitetype) {
+    public void setSitetype(SitesSitetype sitetype) {
         this.sitetype = sitetype;
     }
 
@@ -239,31 +240,31 @@ public class ViewSites implements Serializable {
     }
 
     /**
-     * Getter for <code>blog_db.view_sites.groundtype</code>.
+     * Getter for <code>blog_db.view_sites.groundtypes</code>.
      */
-    public PostsitesGroundtype getGroundtype() {
-        return this.groundtype;
+    public PostsitesGroundtype[] getGroundtypes() {
+        return this.groundtypes;
     }
 
     /**
-     * Setter for <code>blog_db.view_sites.groundtype</code>.
+     * Setter for <code>blog_db.view_sites.groundtypes</code>.
      */
-    public void setGroundtype(PostsitesGroundtype groundtype) {
-        this.groundtype = groundtype;
+    public void setGroundtypes(PostsitesGroundtype[] groundtypes) {
+        this.groundtypes = groundtypes;
     }
 
     /**
-     * Getter for <code>blog_db.view_sites.post_id</code>.
+     * Getter for <code>blog_db.view_sites.post_ids</code>.
      */
-    public Integer getPostId() {
-        return this.postId;
+    public Integer[] getPostIds() {
+        return this.postIds;
     }
 
     /**
-     * Setter for <code>blog_db.view_sites.post_id</code>.
+     * Setter for <code>blog_db.view_sites.post_ids</code>.
      */
-    public void setPostId(Integer postId) {
-        this.postId = postId;
+    public void setPostIds(Integer[] postIds) {
+        this.postIds = postIds;
     }
 
     @Override
@@ -281,8 +282,8 @@ public class ViewSites implements Serializable {
         sb.append(", ").append(facilities);
         sb.append(", ").append(createdOn);
         sb.append(", ").append(updatedOn);
-        sb.append(", ").append(groundtype);
-        sb.append(", ").append(postId);
+        sb.append(", ").append(Arrays.toString(groundtypes));
+        sb.append(", ").append(Arrays.toString(postIds));
 
         sb.append(")");
         return sb.toString();

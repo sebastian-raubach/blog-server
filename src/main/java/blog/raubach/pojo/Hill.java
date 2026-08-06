@@ -6,14 +6,14 @@ import java.util.List;
 
 public class Hill extends Hills
 {
-	private List<IndividualRecord> hillIndividuals;
+	private List<Individuals> hillIndividuals;
 
-	public List<IndividualRecord> getHillIndividuals()
+	public List<Individuals> getHillIndividuals()
 	{
 		return hillIndividuals;
 	}
 
-	public Hill setHillIndividuals(List<IndividualRecord> hillIndividuals)
+	public Hill setHillIndividuals(List<Individuals> hillIndividuals)
 	{
 		this.hillIndividuals = hillIndividuals;
 		return this;
