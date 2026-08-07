@@ -13,15 +13,13 @@ import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.jooq.*;
-import org.jooq.conf.ParamType;
 import org.jooq.impl.DSL;
 
+import java.io.*;
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.sql.*;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static blog.raubach.database.codegen.tables.Hikestats.HIKESTATS;
 import static blog.raubach.database.codegen.tables.Posthills.POSTHILLS;
@@ -64,6 +62,13 @@ public class PostResource extends BaseResource
 
 			if (post != null)
 			{
+				PostsRecord toUpdateCount = context.selectFrom(POSTS).where(POSTS.ID.eq(post.getPostId())).fetchOne();
+				if (toUpdateCount != null)
+				{
+					toUpdateCount.setViewCount(toUpdateCount.getViewCount() + 1);
+					toUpdateCount.store(POSTS.VIEW_COUNT);
+				}
+
 				if (!CollectionUtils.isEmpty(post.getImages()))
 				{
 					for (PostImage i : post.getImages())
