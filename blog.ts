@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-08-05 11:24:47.
+// Generated using typescript-generator version 3.2.1263 on 2026-08-23 09:57:39.
 
 export interface Hikeratings extends Serializable {
     postId: number;
@@ -263,6 +263,7 @@ export interface MiniPost {
     primaryImageId: number;
     primaryImagePath: string;
     visible: number;
+    type: PostsType;
 }
 
 export interface PaginatedRequest {
@@ -375,6 +376,7 @@ export interface HikeStats {
     gpx: string;
     elevationProfile: string;
     timeDistanceProfile: string;
+    individualStats: { [index: string]: Section[] };
 }
 
 export interface HikeRating {
@@ -400,6 +402,12 @@ export interface PostSite {
     siteRating: SiteRating;
     siteFacilities: SiteFacilities;
     groundType: PostsitesGroundtype;
+}
+
+export interface Section {
+    from: number;
+    to: number;
+    type: MovementType;
 }
 
 export const enum HillsType {
@@ -428,4 +436,12 @@ export const enum PostsitesGroundtype {
 export const enum SitesSitetype {
     campsite = 'campsite',
     wildcamp = 'wildcamp',
+}
+
+export const enum MovementType {
+    BIKE = 'BIKE',
+    WALK = 'WALK',
+    RUN = 'RUN',
+    TRAILER = 'TRAILER',
+    SWIM = 'SWIM',
 }

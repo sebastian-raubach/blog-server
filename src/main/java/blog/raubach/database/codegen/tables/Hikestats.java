@@ -10,8 +10,9 @@ import blog.raubach.database.codegen.tables.records.HikestatsRecord;
 import java.sql.Timestamp;
 
 import org.jooq.Field;
+import org.jooq.JSON;
 import org.jooq.Name;
-import org.jooq.Row9;
+import org.jooq.Row10;
 import org.jooq.Schema;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -64,6 +65,11 @@ public class Hikestats extends TableImpl<HikestatsRecord> {
      * The column <code>blog_db.hikestats.ascent</code>.
      */
     public final TableField<HikestatsRecord, Double> ASCENT = createField(DSL.name("ascent"), SQLDataType.DOUBLE.nullable(false), this, "");
+
+    /**
+     * The column <code>blog_db.hikestats.individual_stats</code>.
+     */
+    public final TableField<HikestatsRecord, JSON> INDIVIDUAL_STATS = createField(DSL.name("individual_stats"), SQLDataType.JSON, this, "");
 
     /**
      * The column <code>blog_db.hikestats.gpx_path</code>.
@@ -156,12 +162,12 @@ public class Hikestats extends TableImpl<HikestatsRecord> {
     }
 
     // -------------------------------------------------------------------------
-    // Row9 type methods
+    // Row10 type methods
     // -------------------------------------------------------------------------
 
     @Override
-    public Row9<Integer, Integer, Double, Double, String, String, String, Timestamp, Timestamp> fieldsRow() {
-        return (Row9) super.fieldsRow();
+    public Row10<Integer, Integer, Double, Double, JSON, String, String, String, Timestamp, Timestamp> fieldsRow() {
+        return (Row10) super.fieldsRow();
     }
     // @formatter:on
 }

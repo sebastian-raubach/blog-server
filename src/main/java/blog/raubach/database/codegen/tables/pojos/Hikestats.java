@@ -7,6 +7,8 @@ package blog.raubach.database.codegen.tables.pojos;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import org.jooq.JSON;
+
 
 // @formatter:off
 /**
@@ -21,6 +23,7 @@ public class Hikestats implements Serializable {
     private Integer   duration;
     private Double    distance;
     private Double    ascent;
+    private JSON      individualStats;
     private String    gpxPath;
     private String    elevationProfilePath;
     private String    timeDistanceProfilePath;
@@ -34,6 +37,7 @@ public class Hikestats implements Serializable {
         this.duration = value.duration;
         this.distance = value.distance;
         this.ascent = value.ascent;
+        this.individualStats = value.individualStats;
         this.gpxPath = value.gpxPath;
         this.elevationProfilePath = value.elevationProfilePath;
         this.timeDistanceProfilePath = value.timeDistanceProfilePath;
@@ -46,6 +50,7 @@ public class Hikestats implements Serializable {
         Integer   duration,
         Double    distance,
         Double    ascent,
+        JSON      individualStats,
         String    gpxPath,
         String    elevationProfilePath,
         String    timeDistanceProfilePath,
@@ -56,6 +61,7 @@ public class Hikestats implements Serializable {
         this.duration = duration;
         this.distance = distance;
         this.ascent = ascent;
+        this.individualStats = individualStats;
         this.gpxPath = gpxPath;
         this.elevationProfilePath = elevationProfilePath;
         this.timeDistanceProfilePath = timeDistanceProfilePath;
@@ -117,6 +123,20 @@ public class Hikestats implements Serializable {
      */
     public void setAscent(Double ascent) {
         this.ascent = ascent;
+    }
+
+    /**
+     * Getter for <code>blog_db.hikestats.individual_stats</code>.
+     */
+    public JSON getIndividualStats() {
+        return this.individualStats;
+    }
+
+    /**
+     * Setter for <code>blog_db.hikestats.individual_stats</code>.
+     */
+    public void setIndividualStats(JSON individualStats) {
+        this.individualStats = individualStats;
     }
 
     /**
@@ -197,6 +217,7 @@ public class Hikestats implements Serializable {
         sb.append(", ").append(duration);
         sb.append(", ").append(distance);
         sb.append(", ").append(ascent);
+        sb.append(", ").append(individualStats);
         sb.append(", ").append(gpxPath);
         sb.append(", ").append(elevationProfilePath);
         sb.append(", ").append(timeDistanceProfilePath);

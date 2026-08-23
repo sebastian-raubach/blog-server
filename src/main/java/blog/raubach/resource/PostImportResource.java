@@ -182,7 +182,12 @@ public class PostImportResource extends ContextResource
 					if (h == null)
 					{
 						// Create if not
-						h = context.newRecord(HILLS, hill);
+						h = context.newRecord(HILLS);
+						h.setName(hill.getHillName());
+						h.setType(hill.getHillType());
+						h.setLatitude(hill.getHillLatitude());
+						h.setLongitude(hill.getHillLongitude());
+						h.setElevation(hill.getHillElevation());
 						h.store();
 					}
 
