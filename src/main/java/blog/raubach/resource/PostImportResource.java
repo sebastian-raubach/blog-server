@@ -12,7 +12,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.*;
 import org.jooq.DSLContext;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.*;
 
@@ -34,7 +33,7 @@ public class PostImportResource extends ContextResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response patchPostImport(@PathParam("postId") Integer postId, PostImport hi)
-			throws IOException, SQLException
+			throws SQLException
 	{
 		if (hi == null || postId == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
 			return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set").build();
@@ -84,7 +83,7 @@ public class PostImportResource extends ContextResource
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response putPostImport(PostImport hi)
-			throws IOException, SQLException
+			throws SQLException
 	{
 		if (hi == null || hi.getType() == null || StringUtils.isEmpty(hi.getTitle()) || (StringUtils.isEmpty(hi.getContent()) && StringUtils.isEmpty(hi.getContentMarkdown())))
 			return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Payload is null or main attributes aren't set").build();

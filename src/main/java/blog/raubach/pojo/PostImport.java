@@ -18,8 +18,8 @@ public class PostImport
 	private Timestamp createdOn;
 	private Timestamp updatedOn;
 
-	private PostHill[] hills;
-	private String[]   videos;
+	private PostHill[]  hills;
+	private String[]    videos;
 	private Hikestats   stats;
 	private Hikeratings rating;
 

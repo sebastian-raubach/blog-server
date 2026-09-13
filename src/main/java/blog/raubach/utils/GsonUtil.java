@@ -12,7 +12,6 @@ public class GsonUtil
 
 	private static Gson             gson;
 	private static Gson             gsonExpose;
-	private static SimpleDateFormat sdf;
 
 	public static Gson getInstance()
 	{
@@ -52,13 +51,12 @@ public class GsonUtil
 		}
 	}
 
+	private static final ThreadLocal<SimpleDateFormat> sdfThreadLocal =
+			ThreadLocal.withInitial(() -> new SimpleDateFormat(PATTERN));
+
 	public static SimpleDateFormat getSDFInstance()
 	{
-		if (sdf == null)
-		{
-			sdf = new SimpleDateFormat(PATTERN);
-		}
-		return sdf;
+		return sdfThreadLocal.get();
 	}
 
 	private static GsonBuilder getGsonBuilderInstance(boolean onlyExpose)
@@ -68,30 +66,62 @@ public class GsonUtil
 		{
 			gsonBuilder.excludeFieldsWithoutExposeAnnotation();
 		}
+
+		// Flexible Date Deserializer
 		gsonBuilder.registerTypeAdapter(Date.class, (JsonDeserializer<Date>) (json, type, arg2) -> {
+			String str = json.getAsString();
+			if (str == null || str.trim().isEmpty()) {
+				return null;
+			}
 			try
 			{
-				return getSDFInstance().parse(json.getAsString());
+				return getSDFInstance().parse(str);
 			}
 			catch (ParseException e)
 			{
-				return null;
+				try
+				{
+					// Fallback for simple "yyyy-MM-dd" format
+					return new SimpleDateFormat("yyyy-MM-dd").parse(str);
+				}
+				catch (ParseException ex)
+				{
+					return null;
+				}
 			}
 		});
-		gsonBuilder.registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(getSDFInstance()
-			.format(src)));
+
+		gsonBuilder.registerTypeAdapter(Date.class, (JsonSerializer<Date>) (src, typeOfSrc, context) ->
+				src == null ? null : new JsonPrimitive(getSDFInstance().format(src)));
+
+		// Flexible Timestamp Deserializer
 		gsonBuilder.registerTypeAdapter(Timestamp.class, (JsonDeserializer<Timestamp>) (json, type, arg2) -> {
+			String str = json.getAsString();
+			if (str == null || str.trim().isEmpty()) {
+				return null;
+			}
 			try
 			{
-				return new Timestamp(getSDFInstance().parse(json.getAsString()).getTime());
+				return new Timestamp(getSDFInstance().parse(str).getTime());
 			}
 			catch (ParseException e)
 			{
-				return null;
+				try
+				{
+					// Fallback for simple "yyyy-MM-dd" format
+					Date date = new SimpleDateFormat("yyyy-MM-dd").parse(str);
+					return new Timestamp(date.getTime());
+				}
+				catch (ParseException ex)
+				{
+					return null;
+				}
 			}
 		});
-		gsonBuilder.registerTypeAdapter(Timestamp.class, (JsonSerializer<Timestamp>) (src, typeOfSrc, context) -> src == null ? null : new JsonPrimitive(getSDFInstance()
-			.format(src)));
+
+		gsonBuilder.registerTypeAdapter(Timestamp.class, (JsonSerializer<Timestamp>) (src, typeOfSrc, context) ->
+				src == null ? null : new JsonPrimitive(getSDFInstance().format(src)));
+
 		return gsonBuilder;
 	}
 
