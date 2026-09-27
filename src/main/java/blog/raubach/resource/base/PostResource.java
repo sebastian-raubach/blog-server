@@ -170,8 +170,8 @@ public class PostResource extends BaseResource
 			{
 				Set<Integer> reladedIdsInDb = new HashSet<>();
 				context.selectFrom(RELATIONSHIPS)
-				       .where(RELATIONSHIPS.POST_A_ID.in(related).and(RELATIONSHIPS.POST_B_ID.eq(VIEW_POSTS.POST_ID)))
-				       .or(RELATIONSHIPS.POST_B_ID.in(related).and(RELATIONSHIPS.POST_A_ID.eq(VIEW_POSTS.POST_ID)))
+				       .where(RELATIONSHIPS.POST_A_ID.in(related).and(RELATIONSHIPS.POST_B_ID.eq(postId)))
+				       .or(RELATIONSHIPS.POST_B_ID.in(related).and(RELATIONSHIPS.POST_A_ID.eq(postId)))
 				       .forEach(r -> {
 						   reladedIdsInDb.add(r.getPostAId());
 						   reladedIdsInDb.add(r.getPostBId());
