@@ -28,6 +28,7 @@ public class HikeIndividualStats extends HashMap<Integer, List<HikeIndividualSta
 		WALK,
 		RUN,
 		TRAILER,
-		SWIM
+		SWIM,
+		BACKPACK
 	}
 }
