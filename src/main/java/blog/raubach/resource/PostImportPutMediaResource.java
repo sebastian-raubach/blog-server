@@ -150,7 +150,7 @@ public class PostImportPutMediaResource extends ContextResource
 										.where(HIKESTATS.POST_ID.eq(postId))
 										.fetchAny();
 
-			if (hs != null)
+			if (hs == null)
 			{
 				if (!CollectionUtils.isEmpty(gpx))
 				{

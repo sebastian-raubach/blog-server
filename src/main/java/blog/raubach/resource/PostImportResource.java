@@ -42,6 +42,11 @@ public class PostImportResource extends ContextResource
 		{
 			DSLContext context = Database.getContext(conn);
 
+			boolean statsValid = isStatsValid(hi.getStats());
+
+			if (hi.getStats() != null && !statsValid)
+				return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Hike provided, but either hills, rating or stats invalid").build();
+
 			PostsRecord post = context.selectFrom(POSTS)
 			                          .where(POSTS.ID.eq(postId))
 			                          .fetchAny();
@@ -73,6 +78,24 @@ public class PostImportResource extends ContextResource
 					       .set(POSTVIDEOS.VIDEO_PATH, newVideo)
 					       .execute();
 				}
+			}
+
+			if (statsValid)
+			{
+				HikestatsRecord stats = context.selectFrom(HIKESTATS).where(HIKESTATS.POST_ID.eq(post.getId())).fetchAny();
+
+				if (stats == null)
+				{
+					stats = context.newRecord(HIKESTATS);
+					stats.setPostId(post.getId());
+					stats.setElevationProfilePath(null);
+					stats.setGpxPath(null);
+				}
+
+				stats.setAscent(hi.getStats().getAscent());
+				stats.setDuration(hi.getStats().getDuration());
+				stats.setDistance(hi.getStats().getDistance());
+				stats.store();
 			}
 
 			return Response.ok(post.getId()).build();
